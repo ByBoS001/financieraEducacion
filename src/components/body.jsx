@@ -9,11 +9,12 @@ const Body = () => {
             Transforma tu Futuro Financiero
           </h1>
           <p className="mb-8 text-lg font-normal text-gray-300 lg:text-xl sm:px-16 lg:px-48">
-            Aprende a gestionar tus finanzas con nuestros recursos gratuitos y herramientas prácticas
+            Aprende a gestionar tus finanzas con nuestros recursos gratuitos y
+            herramientas prácticas
           </p>
           <div className="flex flex-col space-y-4 sm:flex-row sm:justify-center sm:space-y-0">
             <a
-              Link to="/login"
+              href="#cuerpo"
               className="inline-flex justify-center items-center py-3 px-5 text-base font-medium text-center text-white rounded-lg bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 dark:focus:ring-blue-900"
             >
               Comienza Ya
@@ -33,11 +34,36 @@ const Body = () => {
                 />
               </svg>
             </a>
-            
           </div>
         </div>
       </section>
-      
+      <div>
+        <section id="cuerpo" className="w-full py-8 md:py-16 lg:py-20">
+          <div className="relative container max-w-md mx-auto">
+            <img
+              src="imagen1.jpeg"
+              width="800"
+              height="400"
+              alt="Featured Content"
+              className="w-full h-auto rounded-lg object-cover object-center"
+            />
+            <div className="absolute inset-0 flex flex-col items-end justify-center p-4 bg-black bg-opacity-0 hover:bg-opacity-75 transition-opacity duration-300 ease-in-out">
+              <div className="opacity-0 hover:opacity-100 transition-opacity duration-300 ease-in-out">
+                <h2 className="text-xl font-bold tracking-tight text-white">
+                  Descubre cómo la Educación Financiera Puede Transformar tu
+                  Vida
+                </h2>
+                <br></br>
+                <p className="text-white mt-2">
+                  Aprender a gestionar tus finanzas es el primer paso hacia la
+                  libertad financiera. Conoce los beneficios de mejorar tu
+                  conocimiento financiero.
+                </p>
+              </div>
+            </div>
+          </div>
+        </section>
+      </div>
     </div>
   );
 };
