@@ -173,14 +173,15 @@ const Accordion = () => {
             aria-labelledby="accordion-collapse-heading-3"
           >
             {preguntas.length > 0 ? (
-              preguntas.map((pregunta) => (
-                <div key={pregunta._id} className="mb-4">
-                  <p className="text-xl font-bold">{pregunta.texto}</p>
-                </div>
-              ))
-            ) : (
-              <p>No hay preguntas disponibles.</p>
-            )}
+  preguntas.map((pregunta) => (
+    <div key={pregunta._id} className="mb-4">
+      <p className="text-xl font-bold">{pregunta.text}</p>
+    </div>
+  ))
+) : (
+  <p>No hay preguntas disponibles.</p>
+)}
+
           </div>
 
         </div>
