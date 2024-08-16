@@ -100,6 +100,7 @@ const Accordion = () => {
     fetchModulos();
     fetchLecciones();
     fetchPreguntas();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const handleToggle = (index) => {
