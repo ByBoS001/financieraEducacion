@@ -50,7 +50,7 @@ button:hover {
     width: 100%;
     padding: 10px;
     background-color: transparent; /* Sin color de fondo */
-    color: #0056b3; /* Color azul para el texto */
+    color: #077fff; /* Color azul para el texto */
     border: 1px solid #0056b3; /* Borde azul */
     border-radius: 4px;
     cursor: pointer;
@@ -62,5 +62,5 @@ button:hover {
 
 .register-button:hover {
     background-color: #e6f0ff; /* Color de fondo claro al pasar el ratón */
-    color: #004494; /* Color del texto más oscuro al pasar el ratón */
+    color: #087bff; /* Color del texto más oscuro al pasar el ratón */
 }

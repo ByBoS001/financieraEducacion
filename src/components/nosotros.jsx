@@ -1,9 +1,10 @@
+// eslint-disable-next-line no-unused-vars
 import React from "react";
 
 export default function Nosotros() {
   return (
     <section className="w-full py-12 md:py-24 lg:py-32">
-      <div className="container px-4 md:px-6">
+      <div className="">
         <div className="flex flex-col items-center justify-center space-y-4 text-center">
           <div className="space-y-2">
             <h2 className="text-3xl font-bold tracking-tighter sm:text-5xl">
