@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import HeartSystem from "../components/heart";
 
 const Accordion = () => {
   const [modulos, setModulos] = useState([]);
@@ -126,6 +127,7 @@ const Accordion = () => {
 
   return (
     <div className="relative">
+      <HeartSystem/>
       <main className="flex-1 mx-auto max-w-2xl px-4 py-16 sm:px-6 sm:py-24 lg:max-w-7xl lg:px-8">
         <div id="accordion-collapse" data-accordion="collapse">
           {/* Panel 1 - Lecciones */}
