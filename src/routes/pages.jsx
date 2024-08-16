@@ -5,6 +5,7 @@ import Footer from "../components/footer";
 import Body from "../components/body";
 import Modulos from "../components/modulos"
 import Leccion from "../components/lecciones"
+import Nosotros from "../components/nosotros";
 
 const Pages = () => {
   return (
@@ -15,6 +16,7 @@ const Pages = () => {
           <Route path="/" element={<Body />} />
           <Route path="/modulos" element={<Modulos />} />
           <Route path="/leccion" element={<Leccion />} />
+          <Route path="/nosotros" element={<Nosotros />} />
         </Routes>
 
       <Footer />
