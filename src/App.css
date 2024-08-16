@@ -1,6 +1,6 @@
 .login-container {
-    max-width: 500px;
-    margin: 300px auto;
+    max-width: 400px;
+    margin: 149px auto;
     padding: 20px;
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
     border-radius: 8px;
@@ -44,4 +44,23 @@ button {
 
 button:hover {
     background-color: #004494;
+}
+
+.register-button {
+    width: 100%;
+    padding: 10px;
+    background-color: transparent; /* Sin color de fondo */
+    color: #077fff; /* Color azul para el texto */
+    border: 1px solid #0056b3; /* Borde azul */
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 16px;
+    text-transform: uppercase;
+    text-align: center;
+    display: inline-block;
+}
+
+.register-button:hover {
+    background-color: #e6f0ff; /* Color de fondo claro al pasar el ratón */
+    color: #087bff; /* Color del texto más oscuro al pasar el ratón */
 }

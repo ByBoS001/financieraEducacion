@@ -1,3 +1,4 @@
+// eslint-disable-next-line no-unused-vars
 import React from "react";
 import "../App.css";
 
@@ -29,8 +30,11 @@ const Body = () => {
               >
                 <path
                   stroke="currentColor"
+                  // eslint-disable-next-line react/no-unknown-property
                   stroke-linecap="round"
+                  // eslint-disable-next-line react/no-unknown-property
                   stroke-linejoin="round"
+                  // eslint-disable-next-line react/no-unknown-property
                   stroke-width="2"
                   d="M1 5h12m0 0L9 1m4 4L9 9"
                 />
@@ -40,9 +44,10 @@ const Body = () => {
         </div>
       </section>
       <section id="cuerpo" className="bg-white dark:bg-gray-900">
-        <div className="container px-4 md:px-6 text-center">
+        <div className=" text-center">
           <div className="max-w-3xl mx-auto space-y-4">
-            <h1 className="text-4xl font-extrabold tracking-tight text-gray-700 sm:text-5xl md:text-6xl hover:text-sky-400 transition-all duration-500 transform hover:-translate-y-1 hover:scale-105">
+
+            <h1 className="text-4xl text-center font-extrabold tracking-tight text-gray-700 sm:text-5xl md:text-6xl hover:text-sky-400 transition-all duration-500 transform hover:-translate-y-1 hover:scale-105">
               Descubre cómo la Educación Financiera Puede Transformar tu Vida
             </h1>
             <p className="text-3xl font-semibold tracking-tight text-white md:text-2xl lg:text-xl transition-all duration-500 transform hover:translate-x-1 hover:text-gray-400">
