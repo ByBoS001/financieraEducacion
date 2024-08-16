@@ -45,7 +45,7 @@ export default function Nosotros() {
           </div>
           <div className="flex flex-col items-center justify-center space-y-4">
             <img
-              src="/perfil2.jpg"
+              src="/perfil3.png"
               width={200}
               height={200}
               alt="Foto de perfil"
