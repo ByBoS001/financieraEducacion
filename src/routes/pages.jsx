@@ -11,10 +11,10 @@ const Pages = () => {
       <Header />
 
         <Routes>
-          <Route path="/" element={<Body />} />
-          <Route path="/modulos" element={<Modulos />} />
-          
+          <Route path="/" element={<Body/>}/>
+          <Route path="/modulos" element={<Modulos/>} />
         </Routes>
+
       <Footer />
     </div>
   );

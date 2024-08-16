@@ -37,6 +37,7 @@ const Body = () => {
           </div>
         </div>
       </section>
+      
     </div>
   );
 };
