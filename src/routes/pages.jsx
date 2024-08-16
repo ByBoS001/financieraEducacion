@@ -5,18 +5,18 @@ import Footer from "../components/footer";
 import Body from "../components/body";
 import Modulos from "../components/modulos"
 import Leccion from "../components/lecciones"
-import Nosotros from "../components/nosotros";
+import Login from "../components/login"
 
 const Pages = () => {
   return (
-    <div>
+    <div style={{width:'100%', height:'100%'}}>
       <Header />
 
         <Routes>
           <Route path="/" element={<Body />} />
           <Route path="/modulos" element={<Modulos />} />
           <Route path="/leccion" element={<Leccion />} />
-          <Route path="/nosotros" element={<Nosotros />} />
+          <Route path="/login" element={<Login />} />
         </Routes>
 
       <Footer />
