@@ -1,12 +1,13 @@
 import React from "react";
-import { Routes, Route } from "react-router-dom";
-import Header from "../components/header";
-import Footer from "../components/footer";
+import { Route, Routes } from "react-router-dom";
 import Body from "../components/body";
-import Modulos from "../components/modulos"
-import Leccion from "../components/lecciones"
-import Login from "../components/login"
+import Footer from "../components/footer";
+import Header from "../components/header";
+import Leccion from "../components/lecciones";
+import Login from "../components/login";
+import Modulos from "../components/modulos";
 import Nosotros from "../components/nosotros";
+import Register from "../components/register";
 
 const Pages = () => {
   return (
@@ -19,6 +20,7 @@ const Pages = () => {
           <Route path="/leccion" element={<Leccion />} />
           <Route path="/nosotros" element={<Nosotros />} />
           <Route path="/login" element={<Login />} />
+          <Route path="/register" element={<Register />} />
         </Routes>
 
       <Footer />
