@@ -15,8 +15,8 @@ const Pages = () => {
           <Route path="/" element={<Body />} />
           <Route path="/modulos" element={<Modulos />} />
           <Route path="/leccion" element={<Leccion />} />
-          
         </Routes>
+
       <Footer />
     </div>
   );
