@@ -1,4 +1,5 @@
-import React, { useState, useEffect } from 'react';
+/* eslint-disable no-unused-vars */
+import React, { useEffect, useState } from 'react';
 
 const HeartSystem = () => {
   const [hearts, setHearts] = useState(5);
@@ -27,8 +28,16 @@ const HeartSystem = () => {
   };
 
   return (
-    <div className="heart-system">
-      <h1>Hearts: {hearts}</h1>
+    <div className="heart-system" style={{ textAlign: 'center' }}>
+      <h1>
+        {Array(hearts).fill('❤️').map((heart, index) => (
+          <span key={index}>{heart}</span>
+        ))}
+      </h1>
+      <div>
+        <button onClick={handleMistake}>Perder corazón</button>
+        <button onClick={handlePractice}>Ganar corazón</button>
+      </div>
     </div>
   );
 };

@@ -14,12 +14,15 @@ const Accordion = () => {
   // Fetch functions
   const fetchModulos = async () => {
     try {
-      const response = await fetch("http://localhost:3000/modules/get-all-modules", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-      });
+      const response = await fetch(
+        "http://localhost:3000/modules/get-all-modules",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      );
 
       if (!response.ok) {
         throw new Error("Network response was not ok");
@@ -31,22 +34,41 @@ const Accordion = () => {
       console.error("Error fetching modulos:", error);
     }
   };
-
   const fetchLecciones = async () => {
     try {
-      const response = await fetch("http://localhost:3000/lessons/get-all-lessons", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-      });
+      const response = await fetch(
+        "http://localhost:3000/lessons/get-all-lessons",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      );
 
       if (!response.ok) {
         throw new Error("Network response was not ok");
       }
 
       const dataJson = await response.json();
-      setLecciones(dataJson || []);
+
+      // Organizar lecciones por módulo
+      const leccionesPorModulo = dataJson.reduce((acc, leccion) => {
+        if (!acc[leccion.modulo]) {
+          acc[leccion.modulo] = [];
+        }
+        acc[leccion.modulo].push(leccion);
+        return acc;
+      }, {});
+
+      // Tomar solo la primera lección de cada módulo
+      const primeraLeccionPorModulo = Object.keys(leccionesPorModulo).map(
+        (modulo) => {
+          return leccionesPorModulo[modulo][0];
+        }
+      );
+
+      setLecciones(primeraLeccionPorModulo || []);
     } catch (error) {
       console.error("Error fetching lecciones:", error);
     }
@@ -54,12 +76,15 @@ const Accordion = () => {
 
   const fetchPreguntas = async () => {
     try {
-      const response = await fetch("http://localhost:3000/questions/get-all-questions", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-      });
+      const response = await fetch(
+        "http://localhost:3000/questions/get-all-questions",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      );
 
       if (!response.ok) {
         throw new Error("Network response was not ok");
@@ -69,7 +94,7 @@ const Accordion = () => {
       setPreguntas(dataJson || []);
 
       // Fetch responses for all questions
-      const questionIds = dataJson.map(pregunta => pregunta._id);
+      const questionIds = dataJson.map((pregunta) => pregunta._id);
       fetchRespuestas(questionIds);
     } catch (error) {
       console.error("Error fetching preguntas:", error);
@@ -78,14 +103,14 @@ const Accordion = () => {
 
   const fetchRespuestas = async (questionIds) => {
     try {
-      const respuestaPromises = questionIds.map(id =>
+      const respuestaPromises = questionIds.map((id) =>
         fetch("http://localhost:3000/answers/get-all-answers", {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
           },
           body: JSON.stringify({ questionId: id }),
-        }).then(response => response.json())
+        }).then((response) => response.json())
       );
 
       const respuestasData = await Promise.all(respuestaPromises);
@@ -100,7 +125,7 @@ const Accordion = () => {
     fetchModulos();
     fetchLecciones();
     fetchPreguntas();
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const handleToggle = (index) => {
@@ -108,7 +133,7 @@ const Accordion = () => {
   };
 
   const handleAnswerSelect = (preguntaId, respuestaId) => {
-    setSelectedAnswers(prev => ({
+    setSelectedAnswers((prev) => ({
       ...prev,
       [preguntaId]: respuestaId,
     }));
@@ -119,7 +144,8 @@ const Accordion = () => {
     const results = preguntas.reduce((acc, pregunta) => {
       const selectedRespuesta = selectedAnswers[pregunta._id];
       const correctRespuesta = respuestas.find(
-        respuesta => respuesta._id === selectedRespuesta && respuesta.isCorrect
+        (respuesta) =>
+          respuesta._id === selectedRespuesta && respuesta.isCorrect
       );
       acc[pregunta._id] = correctRespuesta ? "Correcto" : "Incorrecto";
       return acc;
@@ -129,7 +155,7 @@ const Accordion = () => {
 
   return (
     <div className="relative">
-      <HeartSystem/>
+      <HeartSystem />
       <main className="flex-1 mx-auto max-w-2xl px-4 py-16 sm:px-6 sm:py-24 lg:max-w-7xl lg:px-8">
         <div id="accordion-collapse" data-accordion="collapse">
           {/* Panel 1 - Lecciones */}
@@ -153,7 +179,9 @@ const Accordion = () => {
                 )}
               </span>
               <svg
-                className={`w-3 h-3 transition-transform duration-300 ${openIndex === 2 ? 'rotate-180' : ''}`}
+                className={`w-3 h-3 transition-transform duration-300 ${
+                  openIndex === 2 ? "rotate-180" : ""
+                }`}
                 aria-hidden="true"
                 xmlns="http://www.w3.org/2000/svg"
                 fill="none"
@@ -171,11 +199,13 @@ const Accordion = () => {
           </h2>
           <div
             id="accordion-collapse-body-2"
-            className={`p-5 border border-b-0 border-gray-200 dark:border-gray-700 transition-all duration-300 ${openIndex === 2 ? 'block' : 'hidden'}`}
+            className={`p-5 border border-b-0 border-gray-200 dark:border-gray-700 transition-all duration-300 ${
+              openIndex === 2 ? "block" : "hidden"
+            }`}
             aria-labelledby="accordion-collapse-heading-2"
           >
             {modulos.length > 0 ? (
-              modulos.map(modulo => (
+              modulos.map((modulo) => (
                 <div key={modulo._id} className="mb-4">
                   <p className="text-xl font-bold">{modulo.quizzes}</p>
                 </div>
@@ -196,7 +226,9 @@ const Accordion = () => {
             >
               <span className="text-xl font-bold">Preguntas</span>
               <svg
-                className={`w-3 h-3 transition-transform duration-300 ${openIndex === 3 ? 'rotate-180' : ''}`}
+                className={`w-3 h-3 transition-transform duration-300 ${
+                  openIndex === 3 ? "rotate-180" : ""
+                }`}
                 aria-hidden="true"
                 xmlns="http://www.w3.org/2000/svg"
                 fill="none"
@@ -214,7 +246,9 @@ const Accordion = () => {
           </h2>
           <div
             id="accordion-collapse-body-3"
-            className={`p-5 border border-b-0 border-gray-200 dark:border-gray-700 transition-all duration-300 ${openIndex === 3 ? 'block' : 'hidden'}`}
+            className={`p-5 border border-b-0 border-gray-200 dark:border-gray-700 transition-all duration-300 ${
+              openIndex === 3 ? "block" : "hidden"
+            }`}
             aria-labelledby="accordion-collapse-heading-3"
           >
             {preguntas.length > 0 ? (
@@ -224,19 +258,30 @@ const Accordion = () => {
                   <div>
                     {respuestas.length > 0 ? (
                       respuestas
-                        .filter(respuesta => respuesta.question._id === pregunta._id)
+                        .filter(
+                          (respuesta) => respuesta.question._id === pregunta._id
+                        )
                         .map((respuesta) => (
-                          <div key={respuesta._id} className="flex items-center mb-2">
+                          <div
+                            key={respuesta._id}
+                            className="flex items-center mb-2"
+                          >
                             <input
                               type="radio"
                               id={respuesta._id}
                               name={`pregunta-${pregunta._id}`}
                               value={respuesta._id}
-                              checked={selectedAnswers[pregunta._id] === respuesta._id}
-                              onChange={() => handleAnswerSelect(pregunta._id, respuesta._id)}
+                              checked={
+                                selectedAnswers[pregunta._id] === respuesta._id
+                              }
+                              onChange={() =>
+                                handleAnswerSelect(pregunta._id, respuesta._id)
+                              }
                               className="mr-2"
                             />
-                            <label htmlFor={respuesta._id}>{respuesta.name}</label>
+                            <label htmlFor={respuesta._id}>
+                              {respuesta.name}
+                            </label>
                           </div>
                         ))
                     ) : (
@@ -268,7 +313,13 @@ const Accordion = () => {
                 {preguntas.map((pregunta) => (
                   <li key={pregunta._id} className="mb-2">
                     <p className="font-bold">{pregunta.text}</p>
-                    <p className={results[pregunta._id] === "Correcto" ? "text-green-600" : "text-red-600"}>
+                    <p
+                      className={
+                        results[pregunta._id] === "Correcto"
+                          ? "text-green-600"
+                          : "text-red-600"
+                      }
+                    >
                       {results[pregunta._id]}
                     </p>
                   </li>
