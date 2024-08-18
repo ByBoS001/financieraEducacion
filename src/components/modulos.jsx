@@ -1,8 +1,9 @@
 import React, { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
-
+import { Link, useNavigate } from "react-router-dom"; // Importa useNavigate
+import { isAuthenticated } from "../utils/auth"; // Asegúrate de que la ruta sea correcta
 const ModuloCard = () => {
   const [modulos, setModulos] = useState([]);
+  const navigate = useNavigate(); // Obtén la función de navegación
 
   // Función para obtener los módulos desde la API
   const fetchModulos = async () => {
@@ -28,6 +29,14 @@ const ModuloCard = () => {
   useEffect(() => {
     fetchModulos();
   }, []);
+
+  const handleVerLeccionesClick = () => {
+    if (isAuthenticated()) {
+      navigate('/leccion'); // Redirige a /leccion si está autenticado
+    } else {
+      navigate('/login'); // Redirige a /login si no está autenticado
+    }
+  };
 
   if (modulos.length === 0) {
     return <p>Cargando módulos...</p>;
@@ -57,14 +66,14 @@ const ModuloCard = () => {
               {modulo.text}
             </p>
           </div>
-
+          
           <div className="mt-5 flex justify-center">
-            <Link
-              to='/leccion' 
+            <button
+              onClick={handleVerLeccionesClick}
               className="inline-flex justify-center items-center py-3 px-5 text-base font-medium text-center text-white rounded-lg bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 dark:focus:ring-blue-900 transition-transform duration-300 ease-in-out transform hover:scale-105 hover:shadow-lg"
             >
               Ver Lecciones
-            </Link>
+            </button>
           </div>
         </div>
       ))}
