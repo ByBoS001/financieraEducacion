@@ -97,3 +97,8 @@ button:hover {
     align-items: center;
     justify-content: center;
   }
+  
+  .iframe-container {
+    text-align: center;  /* Horizontally center the div */
+    margin: 0 auto;     /* Add margins to prevent overlapping content */
+}
