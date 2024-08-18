@@ -1,3 +1,4 @@
+// eslint-disable-next-line no-unused-vars
 import React, { useEffect, useState } from "react";
 import HeartSystem from "../components/heart";
 
@@ -99,6 +100,7 @@ const Accordion = () => {
     fetchModulos();
     fetchLecciones();
     fetchPreguntas();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const handleToggle = (index) => {
