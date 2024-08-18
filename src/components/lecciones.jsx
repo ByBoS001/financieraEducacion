@@ -147,7 +147,7 @@ const Accordion = () => {
         (respuesta) =>
           respuesta._id === selectedRespuesta && respuesta.isCorrect
       );
-      acc[pregunta._id] = correctRespuesta ? "Correcto" : "Incorrecto";
+      acc[pregunta._id] = correctRespuesta ? "Correcto" : "Incorrecto"; 
       return acc;
     }, {});
     setResults(results);
@@ -158,7 +158,7 @@ const Accordion = () => {
       <HeartSystem />
       <main className="flex-1 mx-auto max-w-2xl px-4 py-16 sm:px-6 sm:py-24 lg:max-w-7xl lg:px-8">
         <div id="accordion-collapse" data-accordion="collapse">
-          {/* Panel 1 - Lecciones */}
+  w        {/* Panel 1 - Lecciones */}
           <h2 id="accordion-collapse-heading-2">
             <button
               type="button"

@@ -64,3 +64,11 @@ button:hover {
     background-color: #e6f0ff; /* Color de fondo claro al pasar el ratón */
     color: #087bff; /* Color del texto más oscuro al pasar el ratón */
 }
+
+.highlight-day {
+    background-color: #34D399; /* Color de fondo para los días de racha */
+    color: white;
+    border-radius: 50%;
+  }
+
+
