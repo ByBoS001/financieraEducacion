@@ -1,101 +1,152 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState } from "react";
+import Calendar from "react-calendar";
+import "react-calendar/dist/Calendar.css";
+import "../App.css"; // Asegúrate de que esta ruta sea correcta
 
 const getToken = () => {
-    return localStorage.getItem('authToken');
+  return localStorage.getItem("authToken");
 };
 
 const fetchUserProfile = async (userId) => {
-    try {
-        const response = await fetch(`http://localhost:3000/users/user/${userId}`, {
-            method: 'GET',
-            headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${getToken()}`,
-            },
-        });
+  try {
+    const response = await fetch(`http://localhost:3000/users/user/${userId}`, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${getToken()}`,
+      },
+    });
 
-        if (!response.ok) {
-            throw new Error(`Error HTTP: ${response.status}`);
-        }
-
-        return await response.json();
-    } catch (error) {
-        console.error('Error fetching user profile:', error);
-        throw error;
+    if (!response.ok) {
+      throw new Error(`Error HTTP: ${response.status}`);
     }
+
+    return await response.json();
+  } catch (error) {
+    console.error("Error fetching user profile:", error);
+    throw error;
+  }
 };
 
 const UserProfile = () => {
-    const [user, setUser] = useState(null);
-    const [loading, setLoading] = useState(true);
-    const [error, setError] = useState(null);
+  const [user, setUser] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [date, setDate] = useState(new Date());
+  const [completedDates, setCompletedDates] = useState([]);
 
-    useEffect(() => {
-        const getUserProfile = async () => {
-            setLoading(true);
-            const token = getToken();
-            if (token) {
-                try {
-                    const userId = JSON.parse(atob(token.split('.')[1]))._id; // Decodifica el ID del usuario del token
-                    const profileData = await fetchUserProfile(userId);
-                    setUser(profileData);
-                } catch (err) {
-                    setError(err.message);
-                }
-            } else {
-                setError('No token found');
-            }
-            setLoading(false);
-        };
-
-        getUserProfile();
-    }, []);
-
-    const calculateStreakDays = () => {
-        if (!user || !user.lastLoginDate) return 0;
-
-        const lastLogin = new Date(user.lastLoginDate);
-        const today = new Date();
-        const timeDiff = today - lastLogin;
-        const daysDiff = Math.floor(timeDiff / (1000 * 60 * 60 * 24));
-
-        return Math.max(0, daysDiff);
+  useEffect(() => {
+    const getUserProfile = async () => {
+      setLoading(true);
+      const token = getToken();
+      if (token) {
+        try {
+          const userId = JSON.parse(atob(token.split(".")[1]))._id;
+          const profileData = await fetchUserProfile(userId);
+          setUser(profileData);
+          // Calculate completed dates based on profile data
+          const dates = profileData.completedModules.map(
+            (module) => new Date(module.completedDate)
+          ); // Assuming `completedDate` exists
+          setCompletedDates(dates);
+        } catch (err) {
+          setError(err.message);
+        }
+      } else {
+        setError("No token found");
+      }
+      setLoading(false);
     };
 
-    const streakDays = calculateStreakDays();
+    getUserProfile();
+  }, []);
 
-    if (loading) {
-        return <div>Loading...</div>;
+  const tileClassName = ({ date, view }) => {
+    if (view === "month") {
+      // Check if the date is one of the completed dates
+      const isCompleted = completedDates.some(
+        (d) => d.toDateString() === date.toDateString()
+      );
+      return isCompleted ? "bg-green-200 streak-day" : null;
     }
+  };
 
-    if (error) {
-        return <div>Error: {error}</div>;
-    }
+  const tileContent = ({ date }) => {
+    const count = completedDates.filter(
+      (d) => d.toDateString() === date.toDateString()
+    ).length;
 
-    if (!user) {
-        return <div>No user data available</div>;
-    }
+    return count > 0 ? (
+      <div className="streak-day-count" title={`${count} streak day${count > 1 ? 's' : ''}`}>
+        {count}
+      </div>
+    ) : null;
+  };
 
-    // Asegúrate de que completedModules sea un array
-    const completedModules = Array.isArray(user.completedModules) ? user.completedModules : [];
+  if (loading) {
+    return <div>Loading...</div>;
+  }
 
-    return (
-        <div>
-            <p>Name: {user.name}</p>
-            <p>Email: {user.email}</p>
-            <p>Creation Date: {new Date(user.creation_date).toLocaleDateString()}</p>
+  if (error) {
+    return <div>Error: {error}</div>;
+  }
 
-            <h2>Completed Modules</h2>
-            <ul>
-                {completedModules.map(module => (
-                    <li key={module._id}>{module.name}</li>
-                ))}
-            </ul>
+  if (!user) {
+    return <div>No user data available</div>;
+  }
 
-            <h2>Streak Calendar</h2>
-            <p>Days Streak: {streakDays}</p>
+  return (
+    <div className="max-w-4xl mx-auto p-6 bg-white shadow-md rounded-lg">
+      <div className="flex flex-col items-center gap-4">
+        <h1 className="text-3xl font-bold mb-4">User Profile</h1>
+
+        <div className="relative flex flex-col items-center overflow-hidden rounded-lg bg-white shadow-lg p-6 w-full max-w-md">
+          <div className="text-center mb-4">
+            <div className="text-xl font-semibold">{user.name}</div>
+          </div>
+
+          <div className="bg-gray-50 border border-gray-200 rounded-lg p-4 w-full">
+            <p className="text-xl font-semibold">
+              Email: <span className="font-normal">{user.email}</span>
+            </p>
+            <p className="text-xl font-semibold">
+              Fecha de Creación:{" "}
+              <span className="font-normal">
+                {new Date(user.creation_date).toLocaleDateString()}
+              </span>
+            </p>
+          </div>
         </div>
-    );
+      </div>
+
+      <div className="mb-6">
+        <h2 className="text-2xl font-semibold mb-2">Completed Modules</h2>
+        <ul className="list-disc pl-5">
+          {user.completedModules.length > 0 ? (
+            user.completedModules.map((module) => (
+              <li key={module._id} className="text-lg mb-1">
+                {module.name}
+              </li>
+            ))
+          ) : (
+            <li className="text-lg mb-1 text-gray-500">No completed modules</li>
+          )}
+        </ul>
+      </div>
+
+      <div>
+        <h2 className="text-2xl font-semibold mb-2">Streak Calendar</h2>
+        <div className="mt-4">
+          <Calendar
+            onChange={setDate}
+            value={date}
+            tileClassName={tileClassName}
+            tileContent={tileContent}
+          />
+        </div>
+      </div>
+    </div>
+  );
 };
 
 export default UserProfile;

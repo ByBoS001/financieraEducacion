@@ -3,7 +3,7 @@ import React, { useState } from "react";
 import { Link } from "react-router-dom";
 
 const Header = () => {
-  const [isMenuOpen, setIsMenuOpen] = useState(false); 
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
 
   return (
     <div>
@@ -43,7 +43,12 @@ const Header = () => {
               />
             </svg>
           </button>
-          <div className={`items-center justify-between ${isMenuOpen ? 'block' : 'hidden'} w-full sm:flex sm:w-auto sm:order-1`} id="navbar-default">
+          <div
+            className={`items-center justify-between ${
+              isMenuOpen ? "block" : "hidden"
+            } w-full sm:flex sm:w-auto sm:order-1`}
+            id="navbar-default"
+          >
             <ul className="font-medium flex flex-col p-4 md:p-0 mt-4 border border-gray-100 rounded-lg bg-gray-50 md:flex-row md:space-x-8 rtl:space-x-reverse md:mt-0 md:border-0 md:bg-white dark:bg-gray-800 md:dark:bg-gray-900 dark:border-gray-700">
               <li>
                 <Link
@@ -73,9 +78,9 @@ const Header = () => {
               <li>
                 <Link
                   to="/login"
-                  className="block py-2 px-4 text-white font-semibold rounded-lg bg-gradient-to-r from-green-400 via-blue-500 to-purple-600 shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-300 md:border-0 md:p-0 dark:text-white dark:hover:bg-gray-700 dark:hover:text-white"
+                  className="block py-2 px-15 text-white font-semibold rounded-lg bg-gradient-to-r from-green-400 via-blue-500 to-purple-600 shadow-lg hover:shadow-xl transform hover:scale-[1.04] transition-all duration-300 md:border-0 md:p-0 dark:text-white dark:hover:bg-gray-700 dark:hover:text-white"
                 >
-                  Iniciar Sesión
+                  Perfil
                 </Link>
               </li>
             </ul>
