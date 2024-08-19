@@ -10,7 +10,7 @@ const LeccionCard = ({ id }) => {
   const fetchLecciones = async () => {
     try {
       const response = await fetch(
-        "http://localhost:3000/lessons/get-all-lessons",
+        "http://localhost:3000/lessons/by-module",
         {
           method: "POST", // Cambiado a POST para enviar datos en el body
           headers: {
@@ -59,7 +59,7 @@ const LeccionCard = ({ id }) => {
           <div className="relative w-full h-48">
             <img
               className="object-cover w-full h-full rounded-md"
-              src={leccion.imageUrl || "./leccion-predeterminada.jpeg"} // Imagen predeterminada si no hay una específica
+              src={leccion.imageUrl || "./imagen2.jpeg"} // Imagen predeterminada si no hay una específica
               alt={leccion.name}
             />
           </div>
