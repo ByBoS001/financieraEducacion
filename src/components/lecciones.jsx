@@ -97,6 +97,22 @@ const Accordion = () => {
     }
   };
 
+  const fetchPreguntas = async () => {
+    try {
+      const response = await fetch('http://localhost:3000/questions/get-question-by-id', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+      });
+  
+      if (!response.ok) throw new Error('La respuesta de la red no fue correcta');
+  
+      return await response.json();
+    } catch (error) {
+      console.error('Error al obtener las preguntas:', error);
+      throw error;
+    }
+  };
+
   const fetchRespuestas = async (questionIds) => {
     try {
       const respuestaPromises = questionIds.map((id) =>
