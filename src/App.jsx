@@ -1,6 +1,5 @@
-import { useState } from 'react'
-import './App.css'
 import { BrowserRouter } from "react-router-dom";
+import './App.css';
 
 
 import Pages from './routes/pages';
@@ -18,3 +17,4 @@ function App() {
 }
 
 export default App;
+
