@@ -259,16 +259,22 @@ const Accordion = () => {
                           >
                             <input
                               type="radio"
-                              id={respuesta._id}
-                              name={pregunta._id}
+                              id={`respuesta-${respuesta._id}`}
+                              name={`pregunta-${pregunta._id}`}
                               value={respuesta._id}
+                              checked={
+                                selectedAnswers[pregunta._id] === respuesta._id
+                              }
                               onChange={() =>
-                                handleAnswerSelect(pregunta._id, respuesta._id)
+                                handleAnswerSelect(
+                                  pregunta._id,
+                                  respuesta._id
+                                )
                               }
                             />
                             <label
-                              htmlFor={respuesta._id}
-                              className="ml-2 text-gray-700"
+                              htmlFor={`respuesta-${respuesta._id}`}
+                              className="ml-2"
                             >
                               {respuesta.name}
                             </label>
@@ -283,46 +289,35 @@ const Accordion = () => {
             ) : (
               <p>No hay preguntas disponibles.</p>
             )}
+          </div>
+          <button
+            onClick={handleSubmit}
+            className="mt-4 px-4 py-2 bg-blue-500 text-white font-bold rounded"
+          >
+            Enviar Respuestas
+          </button>
+          <button
+            onClick={handleNextLesson}
+            className="mt-4 ml-4 px-4 py-2 bg-green-500 text-white font-bold rounded"
+          >
+            Siguiente Lección
+          </button>
 
-            {/* Botón de enviar */}
-            <button
-              onClick={handleSubmit}
-              className="mt-4 px-4 py-2 text-white bg-blue-500 rounded hover:bg-blue-600"
-            >
-              Enviar Respuestas
-            </button>
-
-            {/* Mostrar resultados */}
-            {Object.keys(results).length > 0 && (
-              <div className="mt-4">
-                <h4 className="text-lg font-bold">Resultados:</h4>
+          {/* Resultados */}
+          <div className="mt-4">
+            <h3 className="text-xl font-bold">Resultados</h3>
+            {Object.keys(results).length > 0 ? (
+              <div>
                 {preguntas.map((pregunta) => (
-                  <div key={pregunta._id}>
-                    <p>{pregunta.text}</p>
-                    <p
-                      className={
-                        results[pregunta._id] === "Correcto"
-                          ? "text-green-500"
-                          : "text-red-500"
-                      }
-                    >
-                      {results[pregunta._id]}
-                    </p>
-                  </div>
+                  <p key={pregunta._id}>
+                    {pregunta.text}: {results[pregunta._id]}
+                  </p>
                 ))}
               </div>
+            ) : (
+              <p>No has enviado respuestas aún.</p>
             )}
           </div>
-
-          {/* Botón de "Siguiente Lección", visible solo cuando todas las preguntas han sido respondidas */}
-          {allQuestionsAnswered && (
-            <button
-              onClick={handleNextLesson}
-              className="mt-4 px-4 py-2 text-white bg-green-500 rounded hover:bg-green-600"
-            >
-              Siguiente Lección
-            </button>
-          )}
         </div>
       </main>
     </div>
