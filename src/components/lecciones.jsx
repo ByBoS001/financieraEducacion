@@ -13,12 +13,16 @@ const Accordion = () => {
   const [currentLessonIndex, setCurrentLessonIndex] = useState(0);
   const [allQuestionsAnswered, setAllQuestionsAnswered] = useState(false);
   const [loading, setLoading] = useState(true);
-  
+  const moduleId = "66bf503163f5baac9dbbdd1c"; // Aquí deberías obtener el ID del módulo dinámicamente
 
   useEffect(() => {
     const fetchData = async () => {
       try {
-        await Promise.all([fetchModulos(), fetchLecciones(), fetchPreguntas()]);
+        await Promise.all([
+          fetchModulos(moduleId),
+          fetchLecciones(moduleId),
+          fetchPreguntas(moduleId), // Aquí se asegura que se pasa moduleId si es necesario
+        ]);
       } catch (error) {
         console.error("Error al obtener los datos:", error);
       } finally {
@@ -26,13 +30,10 @@ const Accordion = () => {
       }
     };
     fetchData();
-  }, []);
-
-  
+  }, [moduleId]);
 
   const fetchModulos = async (moduleId) => {
     try {
-      // Verifica si moduleId está definido
       if (!moduleId) {
         throw new Error("Module ID is required");
       }
@@ -50,7 +51,7 @@ const Accordion = () => {
       }
 
       const dataJson = await response.json();
-      setModulos(dataJson || []);
+      setModulos([dataJson]); // Cambiado para ajustar el formato esperado
     } catch (error) {
       console.error("Error al obtener los módulos:", error);
     }
@@ -58,7 +59,6 @@ const Accordion = () => {
 
   const fetchLecciones = async (moduleId) => {
     try {
-      // Verifica si moduleId está definido
       if (!moduleId) {
         throw new Error("Module ID is required");
       }
@@ -68,7 +68,7 @@ const Accordion = () => {
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ id: moduleId }), // Envia el moduleId en el cuerpo de la solicitud
+          body: JSON.stringify({ id: moduleId }),
         }
       );
 
@@ -77,14 +77,13 @@ const Accordion = () => {
       }
 
       const dataJson = await response.json();
-      console.log("Datos de lecciones recibidos:", dataJson); // Verifica los datos recibidos
+      console.log("Datos de lecciones recibidos:", dataJson);
 
       if (dataJson.length === 0) {
         console.warn("No se encontraron lecciones");
         return;
       }
 
-      // Agrupar las lecciones por módulo
       const leccionesPorModulo = dataJson.reduce((acc, leccion) => {
         const moduloId = leccion.module._id;
         if (!acc[moduloId]) acc[moduloId] = [];
@@ -92,7 +91,7 @@ const Accordion = () => {
         return acc;
       }, {});
 
-      console.log("Lecciones agrupadas por módulo:", leccionesPorModulo); // Verifica la agrupación
+      console.log("Lecciones agrupadas por módulo:", leccionesPorModulo);
 
       setLecciones(leccionesPorModulo || {});
     } catch (error) {
@@ -100,32 +99,12 @@ const Accordion = () => {
     }
   };
 
-  const fetchPreguntas = async (lessonId) => {
+  const fetchPreguntas = async (moduleId) => {
     try {
-      if (!lessonId) {
-        throw new Error("Lesson ID is required");
-      }
-
-      const response = await fetch(
-        "http://localhost:3000/questions/get-questions-by-lesson-id",
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ lessonId }),
-        }
-      );
-
-      if (!response.ok) {
-        throw new Error("La respuesta de la red no fue correcta");
-      }
-
-      const data = await response.json();
-      console.log("Datos de preguntas recibidos:", data);
-
-      setPreguntas(data || []);
+      // Implementa la lógica para obtener preguntas, si es necesario
+      // Deberías ajustar la URL y el cuerpo de la solicitud según tu API
     } catch (error) {
       console.error("Error al obtener las preguntas:", error);
-      throw error;
     }
   };
 
@@ -223,7 +202,7 @@ const Accordion = () => {
                               <p>Preguntas disponibles:</p>
                               {preguntas.map((pregunta) => (
                                 <div key={pregunta._id}>
-                                  <p>{pregunta.name}</p>
+                                  <p>{pregunta.text}</p>
                                   {respuestas
                                     .filter(
                                       (respuesta) =>
@@ -243,7 +222,7 @@ const Accordion = () => {
                                               )
                                             }
                                           />
-                                          {respuesta.name}
+                                          {respuesta.text}
                                         </label>
                                       </div>
                                     ))}
