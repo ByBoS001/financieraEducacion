@@ -54,7 +54,7 @@ const LeccionCard = ({ id }) => {
       {lecciones.map((leccion) => (
         <div
           key={leccion._id}
-          className="relative inline-block px-4 pt-5 pb-4 m-4 overflow-hidden text-left align-bottom transition-all transform bg-white rounded-lg shadow-xl dark:bg-white-900 sm:my-8 sm:align-middle sm:max-w-md sm:w-full sm:p-6 transition-transform duration-300 ease-in-out transform hover:scale-105 hover:shadow-2xl"
+          className="relative inline-block px-4 pt-5 pb-4 m-4 overflow-hidden text-left align-bottom transition-all transform bg-white rounded-lg shadow-xl dark:bg-white-900 sm:my-8 sm:align-middle sm:max-w-md sm:w-full sm:p-6  duration-300 ease-in-out  hover:scale-105 hover:shadow-2xl"
         >
           <div className="relative w-full h-48">
             <img
