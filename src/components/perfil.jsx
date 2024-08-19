@@ -77,7 +77,10 @@ const UserProfile = () => {
     ).length;
 
     return count > 0 ? (
-      <div className="streak-day-count" title={`${count} streak day${count > 1 ? 's' : ''}`}>
+      <div
+        className="streak-day-count"
+        title={`${count} streak day${count > 1 ? "s" : ""}`}
+      >
         {count}
       </div>
     ) : null;
@@ -98,7 +101,9 @@ const UserProfile = () => {
   return (
     <div className="max-w-4xl mx-auto p-6 bg-white shadow-md rounded-lg">
       <div className="flex flex-col items-center gap-4">
-        <h1 className="text-3xl font-bold mb-4">User Profile</h1>
+        <h1 className="text-2xl font-semibold mb-2 text-center text-transparent bg-clip-text bg-gradient-to-r from-green-400 via-blue-500 to-purple-600 animate-gradient-x hover:animate-pulse hover:scale-105 transition-transform duration-500">
+          Perfil
+        </h1>
 
         <div className="relative flex flex-col items-center overflow-hidden rounded-lg bg-white shadow-lg p-6 w-full max-w-md">
           <div className="text-center mb-4">
@@ -118,24 +123,13 @@ const UserProfile = () => {
           </div>
         </div>
       </div>
-
-      <div className="mb-6">
-        <h2 className="text-2xl font-semibold mb-2">Completed Modules</h2>
-        <ul className="list-disc pl-5">
-          {user.completedModules.length > 0 ? (
-            user.completedModules.map((module) => (
-              <li key={module._id} className="text-lg mb-1">
-                {module.name}
-              </li>
-            ))
-          ) : (
-            <li className="text-lg mb-1 text-gray-500">No completed modules</li>
-          )}
-        </ul>
-      </div>
-
       <div>
-        <h2 className="text-2xl font-semibold mb-2">Streak Calendar</h2>
+      <br></br>
+      <br></br>
+      <br></br>
+        <h2 className="text-2xl font-semibold mb-2 text-center text-transparent bg-clip-text bg-gradient-to-r from-green-400 via-blue-500 to-purple-600 animate-gradient-x hover:animate-pulse hover:scale-105 transition-transform duration-500">
+          Días de Racha
+        </h2>
         <div className="mt-4">
           <Calendar
             onChange={setDate}
@@ -144,6 +138,26 @@ const UserProfile = () => {
             tileContent={tileContent}
           />
         </div>
+      </div>
+      <br></br>
+      <br></br>
+      <br></br>
+      <div className="mb-6">
+        <h2 className="text-2xl font-semibold mb-2 text-center text-transparent bg-clip-text bg-gradient-to-r from-green-400 via-blue-500 to-purple-600 animate-gradient-x hover:animate-pulse hover:scale-105 transition-transform duration-500">
+          Módulos Completados
+        </h2>
+
+        <ul className="list-disc pl-5">
+          {user.completedModules.length > 0 ? (
+            user.completedModules.map((module) => (
+              <li key={module._id} className="text-lg mb-1">
+                {module.name}
+              </li>
+            ))
+          ) : (
+            <li className="text-lg mb-1 text-gray-500">Modulos no completados</li>
+          )}
+        </ul>
       </div>
     </div>
   );
