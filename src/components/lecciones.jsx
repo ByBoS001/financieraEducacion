@@ -17,11 +17,7 @@ const Accordion = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        await Promise.all([
-          fetchModulos(),
-          fetchLecciones(),
-          fetchPreguntas()
-        ]);
+        await Promise.all([fetchModulos(), fetchLecciones(), fetchPreguntas()]);
       } catch (error) {
         console.error("Error al obtener los datos:", error);
       } finally {
@@ -31,14 +27,24 @@ const Accordion = () => {
     fetchData();
   }, []);
 
-  const fetchModulos = async () => {
+  const fetchModulos = async (moduleId) => {
     try {
-      const response = await fetch("http://localhost:3000/modules/get-module-by-id", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-      });
+      // Verifica si moduleId está definido
+      if (!moduleId) {
+        throw new Error("Module ID is required");
+      }
 
-      if (!response.ok) throw new Error("La respuesta de la red no fue correcta");
+      const response = await fetch(
+        `http://localhost:3000/modules/module/${moduleId}`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error("La respuesta de la red no fue correcta");
+      }
 
       const dataJson = await response.json();
       setModulos(dataJson || []);
@@ -47,17 +53,33 @@ const Accordion = () => {
     }
   };
 
-  const fetchLecciones = async () => {
+  const fetchLecciones = async (moduleId) => {
     try {
-      const response = await fetch("http://localhost:3000/lessons/get-all-lessons", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-      });
+      // Verifica si moduleId está definido
+      if (!moduleId) {
+        throw new Error("Module ID is required");
+      }
 
-      if (!response.ok) throw new Error("La respuesta de la red no fue correcta");
+      const response = await fetch(
+        "http://localhost:3000/lessons/get-all-lessons",
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ id: moduleId }), // Envia el moduleId en el cuerpo de la solicitud
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error("La respuesta de la red no fue correcta");
+      }
 
       const dataJson = await response.json();
-      if (dataJson.length === 0) console.warn("No se encontraron lecciones");
+      console.log("Datos de lecciones recibidos:", dataJson); // Verifica los datos recibidos
+
+      if (dataJson.length === 0) {
+        console.warn("No se encontraron lecciones");
+        return;
+      }
 
       // Agrupar las lecciones por módulo
       const leccionesPorModulo = dataJson.reduce((acc, leccion) => {
@@ -67,6 +89,8 @@ const Accordion = () => {
         return acc;
       }, {});
 
+      console.log("Lecciones agrupadas por módulo:", leccionesPorModulo); // Verifica la agrupación
+
       setLecciones(leccionesPorModulo || {});
     } catch (error) {
       console.error("Error al obtener las lecciones:", error);
@@ -75,12 +99,12 @@ const Accordion = () => {
 
   const fetchRespuestas = async (questionIds) => {
     try {
-      const respuestaPromises = questionIds.map(id =>
+      const respuestaPromises = questionIds.map((id) =>
         fetch("http://localhost:3000/answers/get-answer-by-id", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ questionId: id }),
-        }).then(response => response.json())
+        }).then((response) => response.json())
       );
 
       const respuestasData = await Promise.all(respuestaPromises);
@@ -95,11 +119,13 @@ const Accordion = () => {
   };
 
   const handleAnswerSelect = (preguntaId, respuestaId) => {
-    setSelectedAnswers(prev => ({ ...prev, [preguntaId]: respuestaId }));
+    setSelectedAnswers((prev) => ({ ...prev, [preguntaId]: respuestaId }));
   };
 
   const handleSubmit = () => {
-    const allAnswered = preguntas.every(pregunta => selectedAnswers[pregunta._id]);
+    const allAnswered = preguntas.every(
+      (pregunta) => selectedAnswers[pregunta._id]
+    );
     setAllQuestionsAnswered(allAnswered);
 
     if (!allAnswered) {
@@ -109,7 +135,10 @@ const Accordion = () => {
 
     const results = preguntas.reduce((acc, pregunta) => {
       const selectedRespuesta = selectedAnswers[pregunta._id];
-      const correctRespuesta = respuestas.find(respuesta => respuesta._id === selectedRespuesta && respuesta.isCorrect);
+      const correctRespuesta = respuestas.find(
+        (respuesta) =>
+          respuesta._id === selectedRespuesta && respuesta.isCorrect
+      );
       acc[pregunta._id] = correctRespuesta ? "Correcto" : "Incorrecto";
       return acc;
     }, {});
@@ -148,27 +177,39 @@ const Accordion = () => {
                   </button>
                 </h2>
                 {openIndex === index && (
-                  <div id={`accordion-collapse-body-${modulo._id}`} aria-labelledby={`accordion-collapse-heading-${modulo._id}`}>
-                    {lecciones[modulo._id] && lecciones[modulo._id].length > 0 ? (
+                  <div
+                    id={`accordion-collapse-body-${modulo._id}`}
+                    aria-labelledby={`accordion-collapse-heading-${modulo._id}`}
+                  >
+                    {lecciones[modulo._id] &&
+                    lecciones[modulo._id].length > 0 ? (
                       lecciones[modulo._id].map((leccion) => (
                         <div key={leccion._id} className="mb-4">
                           <h3 className="text-xl font-bold">{leccion.name}</h3>
                           {preguntas.length > 0 ? (
                             <div>
                               <p>Preguntas disponibles:</p>
-                              {preguntas.map(pregunta => (
+                              {preguntas.map((pregunta) => (
                                 <div key={pregunta._id}>
                                   <p>{pregunta.name}</p>
                                   {respuestas
-                                    .filter(respuesta => respuesta.question === pregunta._id)
-                                    .map(respuesta => (
+                                    .filter(
+                                      (respuesta) =>
+                                        respuesta.question === pregunta._id
+                                    )
+                                    .map((respuesta) => (
                                       <div key={respuesta._id}>
                                         <label>
                                           <input
                                             type="radio"
                                             name={pregunta._id}
                                             value={respuesta._id}
-                                            onChange={() => handleAnswerSelect(pregunta._id, respuesta._id)}
+                                            onChange={() =>
+                                              handleAnswerSelect(
+                                                pregunta._id,
+                                                respuesta._id
+                                              )
+                                            }
                                           />
                                           {respuesta.name}
                                         </label>
@@ -176,10 +217,14 @@ const Accordion = () => {
                                     ))}
                                 </div>
                               ))}
-                              <button onClick={handleSubmit}>Enviar Respuestas</button>
+                              <button onClick={handleSubmit}>
+                                Enviar Respuestas
+                              </button>
                             </div>
                           ) : (
-                            <p>No hay preguntas disponibles para esta lección.</p>
+                            <p>
+                              No hay preguntas disponibles para esta lección.
+                            </p>
                           )}
                         </div>
                       ))
