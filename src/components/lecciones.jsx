@@ -13,6 +13,7 @@ const Accordion = () => {
   const [currentLessonIndex, setCurrentLessonIndex] = useState(0);
   const [allQuestionsAnswered, setAllQuestionsAnswered] = useState(false);
   const [loading, setLoading] = useState(true);
+  
 
   useEffect(() => {
     const fetchData = async () => {
@@ -26,6 +27,8 @@ const Accordion = () => {
     };
     fetchData();
   }, []);
+
+  
 
   const fetchModulos = async (moduleId) => {
     try {
@@ -97,18 +100,31 @@ const Accordion = () => {
     }
   };
 
-  const fetchPreguntas = async () => {
+  const fetchPreguntas = async (lessonId) => {
     try {
-      const response = await fetch('http://localhost:3000/questions/get-question-by-id', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-      });
-  
-      if (!response.ok) throw new Error('La respuesta de la red no fue correcta');
-  
-      return await response.json();
+      if (!lessonId) {
+        throw new Error("Lesson ID is required");
+      }
+
+      const response = await fetch(
+        "http://localhost:3000/questions/get-questions-by-lesson-id",
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ lessonId }),
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error("La respuesta de la red no fue correcta");
+      }
+
+      const data = await response.json();
+      console.log("Datos de preguntas recibidos:", data);
+
+      setPreguntas(data || []);
     } catch (error) {
-      console.error('Error al obtener las preguntas:', error);
+      console.error("Error al obtener las preguntas:", error);
       throw error;
     }
   };
