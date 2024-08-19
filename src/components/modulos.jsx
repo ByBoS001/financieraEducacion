@@ -1,15 +1,16 @@
 import React, { useEffect, useState } from "react";
-import { Link, useNavigate } from "react-router-dom"; // Importa useNavigate
-import { isAuthenticated } from "../utils/auth"; // Asegúrate de que la ruta sea correcta
+import { useNavigate } from "react-router-dom";
+import { isAuthenticated } from "../utils/auth";
+
 const ModuloCard = () => {
   const [modulos, setModulos] = useState([]);
-  const navigate = useNavigate(); // Obtén la función de navegación
+  const [selectedModuloId, setSelectedModuloId] = useState(null);
+  const navigate = useNavigate();
 
-  // Función para obtener los módulos desde la API
   const fetchModulos = async () => {
     try {
       const response = await fetch("http://localhost:3000/modules/get-all-modules", {
-        method: "POST", // Cambiado a GET ya que estamos obteniendo datos
+        method: "POST", 
         headers: {
           "Content-Type": "application/json",
         },
@@ -20,9 +21,33 @@ const ModuloCard = () => {
       }
 
       const dataJson = await response.json();
-      setModulos(dataJson); // Suponiendo que dataJson es una lista de módulos.
+      setModulos(dataJson);
     } catch (error) {
       console.error("Error fetching modulos:", error);
+    }
+  };
+
+  const fetchLecciones = async (moduloId) => {
+    try {
+      const response = await fetch("http://localhost:3000/lessons/get-all-lessons", {
+        method: "POST", 
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ id: moduloId }),
+      });
+
+      if (!response.ok) {
+        throw new Error("Network response was not ok");
+      }
+
+      const lecciones = await response.json();
+      // Aquí puedes hacer lo que quieras con las lecciones
+      // Por ejemplo, podrías almacenarlas en el estado o redirigir a la página de lecciones
+      console.log("Lecciones:", lecciones);
+      navigate('/leccion', { state: { lecciones } });
+    } catch (error) {
+      console.error("Error fetching lecciones:", error);
     }
   };
 
@@ -30,11 +55,12 @@ const ModuloCard = () => {
     fetchModulos();
   }, []);
 
-  const handleVerLeccionesClick = () => {
+  const handleVerLeccionesClick = (moduloId) => {
     if (isAuthenticated()) {
-      navigate('/leccion'); // Redirige a /leccion si está autenticado
+      setSelectedModuloId(moduloId);
+      fetchLecciones(moduloId);
     } else {
-      navigate('/login'); // Redirige a /login si no está autenticado
+      navigate('/login');
     }
   };
 
@@ -69,7 +95,7 @@ const ModuloCard = () => {
           
           <div className="mt-5 flex justify-center">
             <button
-              onClick={handleVerLeccionesClick}
+              onClick={() => handleVerLeccionesClick(modulo._id)}
               className="inline-flex justify-center items-center py-3 px-5 text-base font-medium text-center text-white rounded-lg bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 dark:focus:ring-blue-900 transition-transform duration-300 ease-in-out transform hover:scale-105 hover:shadow-lg"
             >
               Ver Lecciones

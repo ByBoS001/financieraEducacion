@@ -1,4 +1,3 @@
-// eslint-disable-next-line no-unused-vars
 import React, { useEffect, useState } from "react";
 import "../App.css";
 import HeartSystem from "../components/heart";
@@ -11,14 +10,14 @@ const Accordion = () => {
   const [openIndex, setOpenIndex] = useState(null);
   const [selectedAnswers, setSelectedAnswers] = useState({});
   const [results, setResults] = useState({});
-  const [currentLessonIndex, setCurrentLessonIndex] = useState(0); // Index para controlar lecciones
-  const [allQuestionsAnswered, setAllQuestionsAnswered] = useState(false); // Nuevo estado para controlar las respuestas
+  const [currentLessonIndex, setCurrentLessonIndex] = useState(0);
+  const [allQuestionsAnswered, setAllQuestionsAnswered] = useState(false);
+  const [loading, setLoading] = useState(true);
 
-  // Fetch functions
   const fetchModulos = async () => {
     try {
       const response = await fetch(
-        "http://localhost:3000/modules/get-all-modules",
+        "http://localhost:3000/modules/get-module-by-id",
         {
           method: "POST",
           headers: {
@@ -41,7 +40,7 @@ const Accordion = () => {
   const fetchLecciones = async () => {
     try {
       const response = await fetch(
-        "http://localhost:3000/lessons/get-all-lessons",
+        "http://localhost:3000/lessons/get-lesson-by-id",
         {
           method: "POST",
           headers: {
@@ -56,7 +55,6 @@ const Accordion = () => {
 
       const dataJson = await response.json();
 
-      // Organizar lecciones por módulo
       const leccionesPorModulo = dataJson.reduce((acc, leccion) => {
         if (!acc[leccion.modulo]) {
           acc[leccion.modulo] = [];
@@ -74,7 +72,7 @@ const Accordion = () => {
   const fetchPreguntas = async () => {
     try {
       const response = await fetch(
-        "http://localhost:3000/questions/get-all-questions",
+        "http://localhost:3000/questions/get-question-by-id",
         {
           method: "POST",
           headers: {
@@ -90,7 +88,6 @@ const Accordion = () => {
       const dataJson = await response.json();
       setPreguntas(dataJson || []);
 
-      // Fetch responses for all questions
       const questionIds = dataJson.map((pregunta) => pregunta._id);
       fetchRespuestas(questionIds);
     } catch (error) {
@@ -101,7 +98,7 @@ const Accordion = () => {
   const fetchRespuestas = async (questionIds) => {
     try {
       const respuestaPromises = questionIds.map((id) =>
-        fetch("http://localhost:3000/answers/get-all-answers", {
+        fetch("http://localhost:3000/answers/get-answer-by-id", {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
@@ -119,10 +116,11 @@ const Accordion = () => {
   };
 
   useEffect(() => {
-    fetchModulos();
-    fetchLecciones();
-    fetchPreguntas();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    const fetchData = async () => {
+      await Promise.all([fetchModulos(), fetchLecciones(), fetchPreguntas()]);
+      setLoading(false);
+    };
+    fetchData();
   }, []);
 
   const handleToggle = (index) => {
@@ -137,7 +135,6 @@ const Accordion = () => {
   };
 
   const handleSubmit = () => {
-    // Comprobar si todas las preguntas tienen respuestas seleccionadas
     const allAnswered = preguntas.every(
       (pregunta) => selectedAnswers[pregunta._id]
     );
@@ -148,7 +145,6 @@ const Accordion = () => {
       return;
     }
 
-    // Comprobar respuestas seleccionadas
     const results = preguntas.reduce((acc, pregunta) => {
       const selectedRespuesta = selectedAnswers[pregunta._id];
       const correctRespuesta = respuestas.find(
@@ -162,13 +158,12 @@ const Accordion = () => {
   };
 
   const handleNextLesson = () => {
-    const currentModuloId = modulos[0]._id; // Ejemplo con el primer módulo
+    const currentModuloId = modulos[0]._id;
     const moduloLecciones = lecciones[currentModuloId] || [];
 
-    // Verificar que no se pase el índice
     if (currentLessonIndex < moduloLecciones.length - 1) {
       setCurrentLessonIndex(currentLessonIndex + 1);
-      setAllQuestionsAnswered(false); // Reiniciar el estado de las preguntas para la siguiente lección
+      setAllQuestionsAnswered(false);
     }
   };
 
@@ -176,149 +171,86 @@ const Accordion = () => {
     <div className="relative">
       <HeartSystem />
       <main className="flex-1 mx-auto max-w-2xl px-4 py-16 sm:px-6 sm:py-24 lg:max-w-7xl lg:px-8">
-        <div id="accordion-collapse" data-accordion="collapse">
-          {/* Panel de Lecciones */}
-          <h2 id="accordion-collapse-heading-2">
-            <button
-              type="button"
-              className="flex items-center justify-between w-full p-5 font-medium text-gray-500 border border-b-0 border-gray-200 rounded-t-xl focus:ring-4 focus:ring-gray-200 dark:focus:ring-gray-800 dark:border-gray-700 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800"
-              onClick={() => handleToggle(2)}
-              aria-expanded={openIndex === 2}
-              aria-controls="accordion-collapse-body-2"
-            >
-              <span className="text-xl font-bold">
-                {modulos.length > 0 ? (
-                  <div>
-                    {lecciones[modulos[0]._id] &&
-                    lecciones[modulos[0]._id].length > 0 ? (
-                      <div
-                        key={lecciones[modulos[0]._id][currentLessonIndex]._id}
-                        className="mb-4"
-                      >
-                        <h3 className="text-xl font-bold">
-                          {lecciones[modulos[0]._id][currentLessonIndex].name}
-                        </h3>
-                      </div>
-                    ) : (
-                      <p>No hay lecciones disponibles.</p>
-                    )}
-                  </div>
-                ) : (
-                  <p>No hay módulos disponibles.</p>
-                )}
-              </span>
-            </button>
-          </h2>
-
-          <div class="iframe-container">
-            <iframe
-              width="800"
-              height="500"
-              src="https://www.youtube.com/embed/9sCVcWD1Svs?si=S_icLfcDcmNe2FTh"
-              title="YouTube video player"
-              frameborder="0"
-              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-              referrerpolicy="strict-origin-when-cross-origin"
-              allowfullscreen
-            ></iframe>
+        {loading ? (
+          <div>Cargando...</div>
+        ) : (
+          <div id="accordion-collapse" data-accordion="collapse">
+            <h2 id="accordion-collapse-heading-2">
+              <button
+                type="button"
+                className="flex items-center justify-between w-full p-5 font-medium text-gray-500 border border-b-0 border-gray-200 rounded-t-xl focus:ring-4 focus:ring-gray-200 dark:focus:ring-gray-800 dark:border-gray-700 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800"
+                onClick={() => handleToggle(2)}
+                aria-expanded={openIndex === 2}
+                aria-controls="accordion-collapse-body-2"
+              >
+                <span className="text-xl font-bold">
+                  {modulos.length > 0 ? (
+                    <div>
+                      {lecciones[modulos[0]._id] &&
+                      lecciones[modulos[0]._id].length > 0 ? (
+                        <div
+                          key={
+                            lecciones[modulos[0]._id][currentLessonIndex]._id
+                          }
+                          className="mb-4"
+                        >
+                          <h3 className="text-xl font-bold">
+                            {
+                              lecciones[modulos[0]._id][currentLessonIndex]
+                                .name
+                            }
+                          </h3>
+                          {preguntas.length > 0 ? (
+                            <div>
+                              <p>Preguntas disponibles:</p>
+                              {preguntas.map((pregunta) => (
+                                <div key={pregunta._id}>
+                                  <p>{pregunta.name}</p>
+                                  {respuestas
+                                    .filter(
+                                      (respuesta) =>
+                                        respuesta.question === pregunta._id
+                                    )
+                                    .map((respuesta) => (
+                                      <div key={respuesta._id}>
+                                        <label>
+                                          <input
+                                            type="radio"
+                                            name={pregunta._id}
+                                            value={respuesta._id}
+                                            onChange={() =>
+                                              handleAnswerSelect(
+                                                pregunta._id,
+                                                respuesta._id
+                                              )
+                                            }
+                                          />
+                                          {respuesta.name}
+                                        </label>
+                                      </div>
+                                    ))}
+                                </div>
+                              ))}
+                              <button onClick={handleSubmit}>
+                                Enviar Respuestas
+                              </button>
+                            </div>
+                          ) : (
+                            <p>No hay preguntas disponibles para esta lección.</p>
+                          )}
+                        </div>
+                      ) : (
+                        <p>No hay lecciones disponibles.</p>
+                      )}
+                    </div>
+                  ) : (
+                    <p>No hay módulos disponibles.</p>
+                  )}
+                </span>
+              </button>
+            </h2>
           </div>
-
-          {/* Preguntas */}
-          <h2 id="accordion-collapse-heading-3">
-            <button
-              type="button"
-              className="flex items-center justify-between w-full p-5 font-medium text-gray-500 border border-b-0 border-gray-200 rounded-t-xl focus:ring-4 focus:ring-gray-200 dark:focus:ring-gray-800 dark:border-gray-700 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800"
-              onClick={() => handleToggle(3)}
-              aria-expanded={openIndex === 3}
-              aria-controls="accordion-collapse-body-3"
-            >
-              <span className="text-xl font-bold">Preguntas</span>
-            </button>
-          </h2>
-          <div
-            id="accordion-collapse-body-3"
-            className={`p-5 border border-b-0 border-gray-200 dark:border-gray-700 transition-all duration-300 ${
-              openIndex === 3 ? "block" : "hidden"
-            }`}
-            aria-labelledby="accordion-collapse-heading-3"
-          >
-            {preguntas.length > 0 ? (
-              preguntas.map((pregunta) => (
-                <div key={pregunta._id} className="mb-4">
-                  <p className="text-xl font-bold">{pregunta.text}</p>
-                  <div>
-                    {respuestas.length > 0 ? (
-                      respuestas
-                        .filter(
-                          (respuesta) => respuesta.question._id === pregunta._id
-                        )
-                        .map((respuesta) => (
-                          <div
-                            key={respuesta._id}
-                            className="flex items-center mb-2"
-                          >
-                            <input
-                              type="radio"
-                              id={`respuesta-${respuesta._id}`}
-                              name={`pregunta-${pregunta._id}`}
-                              value={respuesta._id}
-                              checked={
-                                selectedAnswers[pregunta._id] === respuesta._id
-                              }
-                              onChange={() =>
-                                handleAnswerSelect(
-                                  pregunta._id,
-                                  respuesta._id
-                                )
-                              }
-                            />
-                            <label
-                              htmlFor={`respuesta-${respuesta._id}`}
-                              className="ml-2"
-                            >
-                              {respuesta.name}
-                            </label>
-                          </div>
-                        ))
-                    ) : (
-                      <p>No hay respuestas disponibles.</p>
-                    )}
-                  </div>
-                </div>
-              ))
-            ) : (
-              <p>No hay preguntas disponibles.</p>
-            )}
-          </div>
-          <button
-            onClick={handleSubmit}
-            className="mt-4 px-4 py-2 bg-blue-500 text-white font-bold rounded"
-          >
-            Enviar Respuestas
-          </button>
-          <button
-            onClick={handleNextLesson}
-            className="mt-4 ml-4 px-4 py-2 bg-green-500 text-white font-bold rounded"
-          >
-            Siguiente Lección
-          </button>
-
-          {/* Resultados */}
-          <div className="mt-4">
-            <h3 className="text-xl font-bold">Resultados</h3>
-            {Object.keys(results).length > 0 ? (
-              <div>
-                {preguntas.map((pregunta) => (
-                  <p key={pregunta._id}>
-                    {pregunta.text}: {results[pregunta._id]}
-                  </p>
-                ))}
-              </div>
-            ) : (
-              <p>No has enviado respuestas aún.</p>
-            )}
-          </div>
-        </div>
+        )}
       </main>
     </div>
   );
