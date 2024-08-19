@@ -37,15 +37,16 @@ const Accordion = () => {
     }
   };
 
-  const fetchLecciones = async () => {
+  const fetchLecciones = async (moduleId) => {
     try {
       const response = await fetch(
-        "http://localhost:3000/lessons/get-lesson-by-id",
+        "http://localhost:3000/lessons/get-all-lessons",
         {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
           },
+          body: JSON.stringify({ id: moduleId }), // Asegúrate de enviar el ID del módulo aquí
         }
       );
 
@@ -54,12 +55,18 @@ const Accordion = () => {
       }
 
       const dataJson = await response.json();
+      console.log(dataJson); // Verifica los datos recibidos
 
+      if (dataJson.length === 0) {
+        console.warn("No lessons found for this module");
+      }
+
+      // Agrupar las lecciones por módulo
       const leccionesPorModulo = dataJson.reduce((acc, leccion) => {
-        if (!acc[leccion.modulo]) {
-          acc[leccion.modulo] = [];
+        if (!acc[leccion.module._id]) {
+          acc[leccion.module._id] = [];
         }
-        acc[leccion.modulo].push(leccion);
+        acc[leccion.module._id].push(leccion);
         return acc;
       }, {});
 
@@ -69,31 +76,8 @@ const Accordion = () => {
     }
   };
 
-  const fetchPreguntas = async () => {
-    try {
-      const response = await fetch(
-        "http://localhost:3000/questions/get-question-by-id",
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-        }
-      );
-
-      if (!response.ok) {
-        throw new Error("Network response was not ok");
-      }
-
-      const dataJson = await response.json();
-      setPreguntas(dataJson || []);
-
-      const questionIds = dataJson.map((pregunta) => pregunta._id);
-      fetchRespuestas(questionIds);
-    } catch (error) {
-      console.error("Error fetching preguntas:", error);
-    }
-  };
+  // Llama a la función con un ID de módulo de ejemplo
+  fetchLecciones("66bf503163f5baac9dbbdd1c");
 
   const fetchRespuestas = async (questionIds) => {
     try {
@@ -195,10 +179,7 @@ const Accordion = () => {
                           className="mb-4"
                         >
                           <h3 className="text-xl font-bold">
-                            {
-                              lecciones[modulos[0]._id][currentLessonIndex]
-                                .name
-                            }
+                            {lecciones[modulos[0]._id][currentLessonIndex].name}
                           </h3>
                           {preguntas.length > 0 ? (
                             <div>
@@ -236,7 +217,9 @@ const Accordion = () => {
                               </button>
                             </div>
                           ) : (
-                            <p>No hay preguntas disponibles para esta lección.</p>
+                            <p>
+                              No hay preguntas disponibles para esta lección.
+                            </p>
                           )}
                         </div>
                       ) : (
