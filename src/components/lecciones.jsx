@@ -2,9 +2,11 @@ import React, { useEffect, useState } from "react";
 import { useLocation } from "react-router-dom";
 import "../App.css";
 
-const ResultSummary = ({ correctAnswers, incorrectAnswers }) => (
+const ResultSummary = ({ correctAnswers, incorrectAnswers, onNextLesson }) => (
   <div className="result-summary mt-8 p-6 bg-gray-100 rounded-lg shadow-lg">
-    <h3 className="text-2xl font-bold text-green-600 mb-4">Respuestas Correctas</h3>
+    <h3 className="text-2xl font-bold text-green-600 mb-4">
+      Respuestas Correctas
+    </h3>
     <ul className="list-disc pl-6 mb-4">
       {Object.keys(correctAnswers).length > 0 ? (
         Object.keys(correctAnswers).map((questionId) => (
@@ -17,7 +19,9 @@ const ResultSummary = ({ correctAnswers, incorrectAnswers }) => (
       )}
     </ul>
 
-    <h3 className="text-2xl font-bold text-red-600 mb-4">Respuestas Incorrectas</h3>
+    <h3 className="text-2xl font-bold text-red-600 mb-4">
+      Respuestas Incorrectas
+    </h3>
     <ul className="list-disc pl-6">
       {Object.keys(incorrectAnswers).length > 0 ? (
         Object.keys(incorrectAnswers).map((questionId) => (
@@ -29,12 +33,21 @@ const ResultSummary = ({ correctAnswers, incorrectAnswers }) => (
         <p className="text-gray-600">No hay respuestas incorrectas.</p>
       )}
     </ul>
+
+    {Object.keys(incorrectAnswers).length === 0 && (
+      <button
+        onClick={onNextLesson}
+        className="next-lesson-button mt-6 px-4 py-2 bg-green-500 text-white rounded-lg"
+      >
+        Siguiente Lección
+      </button>
+    )}
   </div>
 );
 
 const Accordion = () => {
   const location = useLocation();
-  const { moduleId } = location.state || {}; // Obtener moduleId desde el estado de navegación
+  const { moduleId } = location.state || {};
 
   const [modulos, setModulos] = useState([]);
   const [lecciones, setLecciones] = useState([]);
@@ -106,7 +119,7 @@ const Accordion = () => {
       setLecciones(dataJson);
 
       if (dataJson.length > 0) {
-        await fetchPreguntas(dataJson[0]._id); // Obtener preguntas para la primera lección
+        await fetchPreguntas(dataJson[0]._id);
       }
     } catch (error) {
       console.error("Error al obtener las lecciones:", error);
@@ -133,7 +146,6 @@ const Accordion = () => {
       const dataJson = await response.json();
       setPreguntas(dataJson || []);
 
-      // Obtén los IDs de las preguntas y pasa a fetchRespuestas
       const questionIds = dataJson.map((pregunta) => pregunta._id);
       await fetchRespuestas(questionIds);
     } catch (error) {
@@ -166,7 +178,6 @@ const Accordion = () => {
         })
       );
 
-      // Organiza las respuestas por questionId
       const respuestasByQuestion = responses.reduce(
         (acc, respuestas, index) => {
           const questionId = questionIds[index];
@@ -214,12 +225,48 @@ const Accordion = () => {
       }
 
       const result = await response.json();
+
+      const correctAnswers = {};
+      const incorrectAnswers = {};
+
+      preguntas.forEach((pregunta) => {
+        const userAnswerId = selectedAnswers[pregunta._id];
+        const correctAnswer = respuestas[pregunta._id]?.find(
+          (respuesta) => respuesta.isCorrect
+        );
+
+        if (userAnswerId === correctAnswer?._id) {
+          correctAnswers[
+            pregunta._id
+          ] = `Pregunta: ${pregunta.text} - Respuesta Correcta: ${correctAnswer.name}`;
+        } else {
+          incorrectAnswers[pregunta._id] = `Pregunta: ${
+            pregunta.text
+          } - Respuesta Seleccionada: ${
+            respuestas[pregunta._id]?.find(
+              (respuesta) => respuesta._id === userAnswerId
+            )?.name || "Desconocida"
+          } - Respuesta Correcta: ${correctAnswer?.name || "Desconocida"}`;
+        }
+      });
+
       setResults(result);
-      setCorrectAnswers(result.correctAnswers || {});
-      setIncorrectAnswers(result.incorrectAnswers || {});
+      setCorrectAnswers(correctAnswers);
+      setIncorrectAnswers(incorrectAnswers);
+
+      if (Object.keys(incorrectAnswers).length === 0) {
+        handleNextLesson();
+      }
     } catch (error) {
       console.error("Error al enviar las respuestas:", error);
     }
+  };
+
+  const handleRestart = () => {
+    setSelectedAnswers({});
+    setResults(null);
+    setCorrectAnswers({});
+    setIncorrectAnswers({});
   };
 
   const handlePreviousLesson = () => {
@@ -227,95 +274,109 @@ const Accordion = () => {
   };
 
   const handleNextLesson = () => {
-    setCurrentLessonIndex((prevIndex) =>
-      Math.min(prevIndex + 1, (lecciones.length || 0) - 1)
-    );
+    if (currentLessonIndex < lecciones.length - 1) {
+      setCurrentLessonIndex((prevIndex) => prevIndex + 1);
+      fetchPreguntas(lecciones[currentLessonIndex + 1]._id);
+    } else {
+      alert("Has completado todas las lecciones.");
+    }
   };
 
   const renderPregunta = (pregunta) => (
-    <div key={pregunta._id} className="question mb-4 p-4 bg-gray-100 rounded-lg shadow-md">
-      <h3 className="font-semibold text-xl">{pregunta.text}</h3>
+    <div
+      key={pregunta._id}
+      className="question mb-4 p-4 bg-gray-100 rounded-lg shadow-md"
+    >
+      <h3 className="text-xl font-semibold">{pregunta.text}</h3>
       <div className="answers mt-2">
-        {respuestas[pregunta._id]?.length ? (
-          respuestas[pregunta._id].map((respuesta) => (
-            <button
-              key={respuesta._id}
-              onClick={() =>
-                handleAnswerSelect(pregunta._id, respuesta._id)
-              }
-              className={`answer-button transition-colors duration-300 ease-in-out px-4 py-2 rounded-lg ${
-                selectedAnswers[pregunta._id] === respuesta._id
-                  ? "bg-blue-500 text-white"
-                  : "bg-gray-200"
-              }`}
-            >
-              {respuesta.name}
-            </button>
-          ))
-        ) : (
-          <p>No hay respuestas disponibles para esta pregunta.</p>
+        {respuestas[pregunta._id]?.map((respuesta) => (
+          <button
+            key={respuesta._id}
+            onClick={() => handleAnswerSelect(pregunta._id, respuesta._id)}
+            className={`answer-button block px-4 py-2 mt-2 rounded-lg ${
+              selectedAnswers[pregunta._id] === respuesta._id
+                ? "bg-blue-500 text-white"
+                : "bg-gray-200"
+            }`}
+          >
+            {respuesta.name}
+          </button>
+        ))}
+        {selectedAnswers[pregunta._id] && results && (
+          <div className="selected-answer mt-2">
+            <p>
+              Respuesta Seleccionada:{" "}
+              {respuestas[pregunta._id]?.find(
+                (respuesta) => respuesta._id === selectedAnswers[pregunta._id]
+              )?.name || "Desconocida"}
+            </p>
+            <p>
+              Respuesta Correcta:{" "}
+              {respuestas[pregunta._id]?.find(
+                (respuesta) => respuesta.isCorrect
+              )?.name || "Desconocida"}
+            </p>
+          </div>
         )}
       </div>
     </div>
   );
 
-  if (loading) {
-    return <p>Cargando...</p>;
-  }
-
-  if (!lecciones.length) {
-    return <p>No se encontraron lecciones.</p>;
-  }
-
-  const currentLesson = lecciones[currentLessonIndex];
-
   return (
-    <div className="accordion-container p-6 max-w-4xl mx-auto">
-      <h2 className="text-4xl font-bold text-gray-800 mb-6 text-center">
-        {currentLesson.name}
-      </h2>
-
-      <div className="questions mt-6">
-        {preguntas.length === 0 ? (
-          <p className="text-gray-600 text-center">No hay preguntas disponibles.</p>
-        ) : (
-          preguntas.map((pregunta) => renderPregunta(pregunta))
-        )}
-      </div>
-
-      <div className="flex justify-between mt-6">
-        <button
-          onClick={handlePreviousLesson}
-          disabled={currentLessonIndex === 0}
-          className="transition-colors duration-300 ease-in-out px-6 py-3 rounded-lg bg-green-600 text-white font-medium hover:bg-green-700 disabled:opacity-50"
-        >
-          Anterior
-        </button>
-        <button
-          onClick={handleNextLesson}
-          disabled={currentLessonIndex === lecciones.length - 1}
-          className="transition-colors duration-300 ease-in-out px-6 py-3 rounded-lg bg-blue-600 text-white font-medium hover:bg-blue-700 disabled:opacity-50"
-        >
-          Siguiente
-        </button>
-      </div>
-
-      <button
-        onClick={handleSubmit}
-        className="submit-button mt-8 px-8 py-4 rounded-lg bg-purple-700 text-white font-bold transition-transform duration-300 ease-in-out hover:scale-105"
-      >
-        Enviar respuestas
-      </button>
-
-      {results && (
-        <ResultSummary
-          correctAnswers={correctAnswers}
-          incorrectAnswers={incorrectAnswers}
-        />
+    <div className="accordion-container p-6">
+      {loading ? (
+        <p>Cargando...</p>
+      ) : (
+        <>
+          {lecciones.length > 0 && (
+            <div className="lecciones">
+              <h2 className="text-3xl font-bold mb-6">
+                {lecciones[currentLessonIndex].name}
+              </h2>
+              {preguntas.map(renderPregunta)}
+            </div>
+          )}
+          <div className="navigation-buttons mt-6 flex justify-between">
+            <button
+              onClick={handlePreviousLesson}
+              className="px-4 py-2 bg-gray-300 rounded-lg"
+              disabled={currentLessonIndex === 0}
+            >
+              Anterior
+            </button>
+            <button
+              onClick={handleNextLesson}
+              className="px-4 py-2 bg-gray-300 rounded-lg"
+              disabled={currentLessonIndex === lecciones.length - 1}
+            >
+              Siguiente
+            </button>
+          </div>
+          <button
+            onClick={handleSubmit}
+            className="submit-button mt-6 px-4 py-2 bg-blue-500 text-white rounded-lg"
+          >
+            Enviar Respuestas
+          </button>
+          {results && (
+            <ResultSummary
+              correctAnswers={correctAnswers}
+              incorrectAnswers={incorrectAnswers}
+              onNextLesson={handleNextLesson}
+            />
+          )}
+          {results && (
+            <button
+              onClick={handleRestart}
+              className="restart-button mt-6 px-4 py-2 bg-red-500 text-white rounded-lg"
+            >
+              Reiniciar
+            </button>
+          )}
+        </>
       )}
     </div>
   );
 };
 
 export default Accordion;
-
