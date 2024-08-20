@@ -9,7 +9,7 @@ const ModuloCard = () => {
 
   const fetchModulos = async () => {
     try {
-      const response = await fetch("http://localhost:3000/modules/get-all-modules", {
+      const response = await fetch("https://educacionfinanciera-ipr0.onrender.com/modules/get-all-modules", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -29,7 +29,7 @@ const ModuloCard = () => {
 
   const fetchLecciones = async (moduloId) => {
     try {
-      const response = await fetch("http://localhost:3000/lessons/get-all-lessons", {
+      const response = await fetch("https://educacionfinanciera-ipr0.onrender.com/lessons/get-all-lessons", {
         method: "POST", 
         headers: {
           "Content-Type": "application/json",
