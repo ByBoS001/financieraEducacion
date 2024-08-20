@@ -9,7 +9,7 @@ const getToken = () => {
 
 const fetchUserProfile = async (userId) => {
   try {
-    const response = await fetch(`http://localhost:3000/users/user/${userId}`, {
+    const response = await fetch(`https://educacionfinanciera-ipr0.onrender.com/users/user/${userId}`, {
       method: "GET",
       headers: {
         "Content-Type": "application/json",

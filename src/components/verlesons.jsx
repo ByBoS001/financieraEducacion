@@ -10,7 +10,7 @@ const LeccionCard = ({ id }) => {
   const fetchLecciones = async () => {
     try {
       const response = await fetch(
-        "http://localhost:3000/lessons/by-module",
+        "https://cf6e-2800-4f0-50f-2670-79ed-3f62-bc6b-a4f7.ngrok-free.app//lessons/by-module",
         {
           method: "POST", // Cambiado a POST para enviar datos en el body
           headers: {

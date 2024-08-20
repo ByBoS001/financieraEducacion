@@ -103,7 +103,7 @@ const Accordion = () => {
   const fetchLecciones = async (moduleId) => {
     try {
       const response = await fetch(
-        "https://educacionfinanciera-ipr0.onrender.com/get-all-lessons",
+        "https://educacionfinanciera-ipr0.onrender.com/lessons/get-all-lessons",
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },

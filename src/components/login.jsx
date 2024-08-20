@@ -1,7 +1,7 @@
-import React, { useState, useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
+import { FaUserCircle } from 'react-icons/fa'; // Icono de perfil
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-import { FaUserCircle } from 'react-icons/fa'; // Icono de perfil
 import '../App.css';
 
 const Login = () => {
@@ -27,7 +27,7 @@ const Login = () => {
         };
 
         try {
-            const response = await fetch('http://localhost:3000/users/login', requestOptions);
+            const response = await fetch('https://educacionfinanciera-ipr0.onrender.com/users/login', requestOptions);
             const data = await response.json();
             if (!response.ok) throw new Error(data.message || 'Failed to login');
             localStorage.setItem('authToken', data.token);

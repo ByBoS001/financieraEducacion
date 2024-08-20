@@ -19,7 +19,7 @@ const Register = () => {
 
     try {
       const response = await fetch(
-        "http://localhost:3000/users/register",
+        "https://educacionfinanciera-ipr0.onrender.com/users/register",
         requestOptions
       );
       const data = await response.json();
