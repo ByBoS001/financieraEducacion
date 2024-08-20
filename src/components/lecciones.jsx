@@ -1,43 +1,73 @@
 import React, { useEffect, useState } from "react";
+import { useLocation } from "react-router-dom";
 import "../App.css";
-import HeartSystem from "../components/heart";
+
+const ResultSummary = ({ correctAnswers, incorrectAnswers }) => (
+  <div className="result-summary mt-8 p-6 bg-gray-100 rounded-lg shadow-lg">
+    <h3 className="text-2xl font-bold text-green-600 mb-4">Respuestas Correctas</h3>
+    <ul className="list-disc pl-6 mb-4">
+      {Object.keys(correctAnswers).length > 0 ? (
+        Object.keys(correctAnswers).map((questionId) => (
+          <li key={questionId} className="text-gray-800">
+            {correctAnswers[questionId]}
+          </li>
+        ))
+      ) : (
+        <p className="text-gray-600">No hay respuestas correctas.</p>
+      )}
+    </ul>
+
+    <h3 className="text-2xl font-bold text-red-600 mb-4">Respuestas Incorrectas</h3>
+    <ul className="list-disc pl-6">
+      {Object.keys(incorrectAnswers).length > 0 ? (
+        Object.keys(incorrectAnswers).map((questionId) => (
+          <li key={questionId} className="text-gray-800">
+            {incorrectAnswers[questionId]}
+          </li>
+        ))
+      ) : (
+        <p className="text-gray-600">No hay respuestas incorrectas.</p>
+      )}
+    </ul>
+  </div>
+);
 
 const Accordion = () => {
+  const location = useLocation();
+  const { moduleId } = location.state || {}; // Obtener moduleId desde el estado de navegación
+
   const [modulos, setModulos] = useState([]);
-  const [lecciones, setLecciones] = useState({});
+  const [lecciones, setLecciones] = useState([]);
   const [preguntas, setPreguntas] = useState([]);
-  const [respuestas, setRespuestas] = useState([]);
-  const [openIndex, setOpenIndex] = useState(null);
+  const [respuestas, setRespuestas] = useState({});
   const [selectedAnswers, setSelectedAnswers] = useState({});
-  const [results, setResults] = useState({});
+  const [results, setResults] = useState(null);
+  const [correctAnswers, setCorrectAnswers] = useState({});
+  const [incorrectAnswers, setIncorrectAnswers] = useState({});
   const [currentLessonIndex, setCurrentLessonIndex] = useState(0);
-  const [allQuestionsAnswered, setAllQuestionsAnswered] = useState(false);
   const [loading, setLoading] = useState(true);
-  const moduleId = "66bf503163f5baac9dbbdd1c"; // Aquí deberías obtener el ID del módulo dinámicamente
 
   useEffect(() => {
+    if (!moduleId) {
+      console.error("Module ID is required");
+      return;
+    }
+
     const fetchData = async () => {
       try {
-        await Promise.all([
-          fetchModulos(moduleId),
-          fetchLecciones(moduleId),
-          fetchPreguntas(moduleId), // Aquí se asegura que se pasa moduleId si es necesario
-        ]);
+        await Promise.all([fetchModulos(moduleId), fetchLecciones(moduleId)]);
       } catch (error) {
         console.error("Error al obtener los datos:", error);
       } finally {
         setLoading(false);
       }
     };
+
     fetchData();
   }, [moduleId]);
 
   const fetchModulos = async (moduleId) => {
     try {
-      if (!moduleId) {
-        throw new Error("Module ID is required");
-      }
-
       const response = await fetch(
         `http://localhost:3000/modules/module/${moduleId}`,
         {
@@ -51,7 +81,7 @@ const Accordion = () => {
       }
 
       const dataJson = await response.json();
-      setModulos([dataJson]); // Cambiado para ajustar el formato esperado
+      setModulos([dataJson]);
     } catch (error) {
       console.error("Error al obtener los módulos:", error);
     }
@@ -59,10 +89,6 @@ const Accordion = () => {
 
   const fetchLecciones = async (moduleId) => {
     try {
-      if (!moduleId) {
-        throw new Error("Module ID is required");
-      }
-
       const response = await fetch(
         "http://localhost:3000/lessons/get-all-lessons",
         {
@@ -77,180 +103,219 @@ const Accordion = () => {
       }
 
       const dataJson = await response.json();
-      console.log("Datos de lecciones recibidos:", dataJson);
+      setLecciones(dataJson);
 
-      if (dataJson.length === 0) {
-        console.warn("No se encontraron lecciones");
-        return;
+      if (dataJson.length > 0) {
+        await fetchPreguntas(dataJson[0]._id); // Obtener preguntas para la primera lección
       }
-
-      const leccionesPorModulo = dataJson.reduce((acc, leccion) => {
-        const moduloId = leccion.module._id;
-        if (!acc[moduloId]) acc[moduloId] = [];
-        acc[moduloId].push(leccion);
-        return acc;
-      }, {});
-
-      console.log("Lecciones agrupadas por módulo:", leccionesPorModulo);
-
-      setLecciones(leccionesPorModulo || {});
     } catch (error) {
       console.error("Error al obtener las lecciones:", error);
     }
   };
 
-  const fetchPreguntas = async (moduleId) => {
+  const fetchPreguntas = async (lessonId) => {
     try {
-      // Implementa la lógica para obtener preguntas, si es necesario
-      // Deberías ajustar la URL y el cuerpo de la solicitud según tu API
+      const response = await fetch(
+        `http://localhost:3000/questions/question/${lessonId}`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+        }
+      );
+
+      if (!response.ok) {
+        const errorMessage = await response.text();
+        throw new Error(
+          `La respuesta de la red no fue correcta: ${errorMessage}`
+        );
+      }
+
+      const dataJson = await response.json();
+      setPreguntas(dataJson || []);
+
+      // Obtén los IDs de las preguntas y pasa a fetchRespuestas
+      const questionIds = dataJson.map((pregunta) => pregunta._id);
+      await fetchRespuestas(questionIds);
     } catch (error) {
       console.error("Error al obtener las preguntas:", error);
     }
   };
 
   const fetchRespuestas = async (questionIds) => {
+    if (!questionIds || questionIds.length === 0) return;
+
     try {
-      const respuestaPromises = questionIds.map((id) =>
-        fetch("http://localhost:3000/answers/get-answer-by-id", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ questionId: id }),
-        }).then((response) => response.json())
+      const responses = await Promise.all(
+        questionIds.map(async (questionId) => {
+          const response = await fetch(
+            `http://localhost:3000/answers/answer/${questionId}`,
+            {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+            }
+          );
+
+          if (!response.ok) {
+            const errorMessage = await response.text();
+            throw new Error(
+              `La respuesta de la red no fue correcta: ${errorMessage}`
+            );
+          }
+
+          return response.json();
+        })
       );
 
-      const respuestasData = await Promise.all(respuestaPromises);
-      setRespuestas(respuestasData.flat() || []);
+      // Organiza las respuestas por questionId
+      const respuestasByQuestion = responses.reduce(
+        (acc, respuestas, index) => {
+          const questionId = questionIds[index];
+          acc[questionId] = respuestas;
+          return acc;
+        },
+        {}
+      );
+
+      setRespuestas(respuestasByQuestion);
     } catch (error) {
       console.error("Error al obtener las respuestas:", error);
     }
   };
 
-  const handleToggle = (index) => {
-    setOpenIndex(openIndex === index ? null : index);
-  };
-
   const handleAnswerSelect = (preguntaId, respuestaId) => {
-    setSelectedAnswers((prev) => ({ ...prev, [preguntaId]: respuestaId }));
+    setSelectedAnswers((prev) => ({
+      ...prev,
+      [preguntaId]: respuestaId,
+    }));
   };
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     const allAnswered = preguntas.every(
       (pregunta) => selectedAnswers[pregunta._id]
     );
-    setAllQuestionsAnswered(allAnswered);
 
     if (!allAnswered) {
       alert("Por favor, responde todas las preguntas antes de continuar.");
       return;
     }
 
-    const results = preguntas.reduce((acc, pregunta) => {
-      const selectedRespuesta = selectedAnswers[pregunta._id];
-      const correctRespuesta = respuestas.find(
-        (respuesta) =>
-          respuesta._id === selectedRespuesta && respuesta.isCorrect
+    try {
+      const response = await fetch(
+        "http://localhost:3000/useranswers/submit-answers",
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(selectedAnswers),
+        }
       );
-      acc[pregunta._id] = correctRespuesta ? "Correcto" : "Incorrecto";
-      return acc;
-    }, {});
-    setResults(results);
-  };
 
-  const handleNextLesson = () => {
-    const currentModuloId = modulos[0]?._id;
-    const moduloLecciones = lecciones[currentModuloId] || [];
+      if (!response.ok) {
+        throw new Error("Error al enviar las respuestas");
+      }
 
-    if (currentLessonIndex < moduloLecciones.length - 1) {
-      setCurrentLessonIndex(currentLessonIndex + 1);
-      setAllQuestionsAnswered(false);
+      const result = await response.json();
+      setResults(result);
+      setCorrectAnswers(result.correctAnswers || {});
+      setIncorrectAnswers(result.incorrectAnswers || {});
+    } catch (error) {
+      console.error("Error al enviar las respuestas:", error);
     }
   };
 
-  return (
-    <div className="relative">
-      <HeartSystem />
-      <main className="flex-1 mx-auto max-w-2xl px-4 py-16 sm:px-6 sm:py-24 lg:max-w-7xl lg:px-8">
-        {loading ? (
-          <div>Cargando...</div>
+  const handlePreviousLesson = () => {
+    setCurrentLessonIndex((prevIndex) => Math.max(prevIndex - 1, 0));
+  };
+
+  const handleNextLesson = () => {
+    setCurrentLessonIndex((prevIndex) =>
+      Math.min(prevIndex + 1, (lecciones.length || 0) - 1)
+    );
+  };
+
+  const renderPregunta = (pregunta) => (
+    <div key={pregunta._id} className="question mb-4 p-4 bg-gray-100 rounded-lg shadow-md">
+      <h3 className="font-semibold text-xl">{pregunta.text}</h3>
+      <div className="answers mt-2">
+        {respuestas[pregunta._id]?.length ? (
+          respuestas[pregunta._id].map((respuesta) => (
+            <button
+              key={respuesta._id}
+              onClick={() =>
+                handleAnswerSelect(pregunta._id, respuesta._id)
+              }
+              className={`answer-button transition-colors duration-300 ease-in-out px-4 py-2 rounded-lg ${
+                selectedAnswers[pregunta._id] === respuesta._id
+                  ? "bg-blue-500 text-white"
+                  : "bg-gray-200"
+              }`}
+            >
+              {respuesta.name}
+            </button>
+          ))
         ) : (
-          <div id="accordion-collapse" data-accordion="collapse">
-            {modulos.map((modulo, index) => (
-              <div key={modulo._id}>
-                <h2 id={`accordion-collapse-heading-${modulo._id}`}>
-                  <button
-                    type="button"
-                    className="flex items-center justify-between w-full p-5 font-medium text-gray-500 border border-b-0 border-gray-200 rounded-t-xl focus:ring-4 focus:ring-gray-200 dark:focus:ring-gray-800 dark:border-gray-700 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800"
-                    onClick={() => handleToggle(index)}
-                    aria-expanded={openIndex === index}
-                    aria-controls={`accordion-collapse-body-${modulo._id}`}
-                  >
-                    <span className="text-xl font-bold">{modulo.name}</span>
-                  </button>
-                </h2>
-                {openIndex === index && (
-                  <div
-                    id={`accordion-collapse-body-${modulo._id}`}
-                    aria-labelledby={`accordion-collapse-heading-${modulo._id}`}
-                  >
-                    {lecciones[modulo._id] &&
-                    lecciones[modulo._id].length > 0 ? (
-                      lecciones[modulo._id].map((leccion) => (
-                        <div key={leccion._id} className="mb-4">
-                          <h3 className="text-xl font-bold">{leccion.name}</h3>
-                          {preguntas.length > 0 ? (
-                            <div>
-                              <p>Preguntas disponibles:</p>
-                              {preguntas.map((pregunta) => (
-                                <div key={pregunta._id}>
-                                  <p>{pregunta.text}</p>
-                                  {respuestas
-                                    .filter(
-                                      (respuesta) =>
-                                        respuesta.question === pregunta._id
-                                    )
-                                    .map((respuesta) => (
-                                      <div key={respuesta._id}>
-                                        <label>
-                                          <input
-                                            type="radio"
-                                            name={pregunta._id}
-                                            value={respuesta._id}
-                                            onChange={() =>
-                                              handleAnswerSelect(
-                                                pregunta._id,
-                                                respuesta._id
-                                              )
-                                            }
-                                          />
-                                          {respuesta.text}
-                                        </label>
-                                      </div>
-                                    ))}
-                                </div>
-                              ))}
-                              <button onClick={handleSubmit}>
-                                Enviar Respuestas
-                              </button>
-                            </div>
-                          ) : (
-                            <p>
-                              No hay preguntas disponibles para esta lección.
-                            </p>
-                          )}
-                        </div>
-                      ))
-                    ) : (
-                      <p>No hay lecciones disponibles para este módulo.</p>
-                    )}
-                  </div>
-                )}
-              </div>
-            ))}
-          </div>
+          <p>No hay respuestas disponibles para esta pregunta.</p>
         )}
-      </main>
+      </div>
+    </div>
+  );
+
+  if (loading) {
+    return <p>Cargando...</p>;
+  }
+
+  if (!lecciones.length) {
+    return <p>No se encontraron lecciones.</p>;
+  }
+
+  const currentLesson = lecciones[currentLessonIndex];
+
+  return (
+    <div className="accordion-container p-6 max-w-4xl mx-auto">
+      <h2 className="text-4xl font-bold text-gray-800 mb-6 text-center">
+        {currentLesson.name}
+      </h2>
+
+      <div className="questions mt-6">
+        {preguntas.length === 0 ? (
+          <p className="text-gray-600 text-center">No hay preguntas disponibles.</p>
+        ) : (
+          preguntas.map((pregunta) => renderPregunta(pregunta))
+        )}
+      </div>
+
+      <div className="flex justify-between mt-6">
+        <button
+          onClick={handlePreviousLesson}
+          disabled={currentLessonIndex === 0}
+          className="transition-colors duration-300 ease-in-out px-6 py-3 rounded-lg bg-green-600 text-white font-medium hover:bg-green-700 disabled:opacity-50"
+        >
+          Anterior
+        </button>
+        <button
+          onClick={handleNextLesson}
+          disabled={currentLessonIndex === lecciones.length - 1}
+          className="transition-colors duration-300 ease-in-out px-6 py-3 rounded-lg bg-blue-600 text-white font-medium hover:bg-blue-700 disabled:opacity-50"
+        >
+          Siguiente
+        </button>
+      </div>
+
+      <button
+        onClick={handleSubmit}
+        className="submit-button mt-8 px-8 py-4 rounded-lg bg-purple-700 text-white font-bold transition-transform duration-300 ease-in-out hover:scale-105"
+      >
+        Enviar respuestas
+      </button>
+
+      {results && (
+        <ResultSummary
+          correctAnswers={correctAnswers}
+          incorrectAnswers={incorrectAnswers}
+        />
+      )}
     </div>
   );
 };
 
 export default Accordion;
+

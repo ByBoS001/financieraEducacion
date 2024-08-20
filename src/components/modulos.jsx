@@ -10,7 +10,7 @@ const ModuloCard = () => {
   const fetchModulos = async () => {
     try {
       const response = await fetch("http://localhost:3000/modules/get-all-modules", {
-        method: "POST", 
+        method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
@@ -27,42 +27,18 @@ const ModuloCard = () => {
     }
   };
 
-  const fetchLecciones = async (moduloId) => {
-    try {
-      const response = await fetch("http://localhost:3000/lessons/get-all-lessons", {
-        method: "POST", 
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ id: moduloId }),
-      });
-
-      if (!response.ok) {
-        throw new Error("Network response was not ok");
-      }
-
-      const lecciones = await response.json();
-      // Aquí puedes hacer lo que quieras con las lecciones
-      // Por ejemplo, podrías almacenarlas en el estado o redirigir a la página de lecciones
-      console.log("Lecciones:", lecciones);
-      navigate('/leccion', { state: { lecciones } });
-    } catch (error) {
-      console.error("Error fetching lecciones:", error);
+  const handleVerLeccionesClick = (moduloId) => {
+    if (isAuthenticated()) {
+      setSelectedModuloId(moduloId);
+      navigate('/leccion', { state: { moduleId: moduloId } }); // Pasar moduleId a través del estado de navegación
+    } else {
+      navigate('/login');
     }
   };
 
   useEffect(() => {
     fetchModulos();
   }, []);
-
-  const handleVerLeccionesClick = (moduloId) => {
-    if (isAuthenticated()) {
-      setSelectedModuloId(moduloId);
-      fetchLecciones(moduloId);
-    } else {
-      navigate('/login');
-    }
-  };
 
   if (modulos.length === 0) {
     return <p>Cargando módulos...</p>;
@@ -108,3 +84,4 @@ const ModuloCard = () => {
 };
 
 export default ModuloCard;
+
