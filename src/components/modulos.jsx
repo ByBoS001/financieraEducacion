@@ -89,7 +89,7 @@ const ModuloCard = () => {
           <div className="relative w-full h-48">
             <img
               className="object-cover w-full h-full rounded-md"
-              src={modulo.imageUrl || "./introduccion.jpeg"}
+              src={modulo.imageUrl || "https://res.cloudinary.com/dnyidkcvk/image/upload/v1724167398/da6vjogrmgf8uzlhzee4.jpg"}
               alt={modulo.name}
             />
           </div>

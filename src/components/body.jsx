@@ -5,7 +5,7 @@ import "../App.css";
 const Body = () => {
   return (
     <div>
-      <section className="relative w-full h-screen bg-center bg-no-repeat bg-cover bg-[url('./inicio.jpeg')] bg-gray-700 bg-blend-multiply">
+      <section className="relative w-full h-screen bg-center bg-no-repeat bg-cover bg-[url('https://res.cloudinary.com/dnyidkcvk/image/upload/v1724167398/gswj2cx0i6t0vl64n5lw.jpg')] bg-gray-700 bg-blend-multiply">
         <div className="px-4 mx-auto max-w-screen-xl text-center py-24 lg:py-56">
           <h1 className="mb-4 text-4xl font-extrabold tracking-tight leading-none text-white md:text-5xl lg:text-6xl transition-transform duration-500 ease-in-out transform hover:scale-105 hover:text-gray-300">
             Transforma tu Futuro Financiero
@@ -68,7 +68,7 @@ const Body = () => {
               <div
                 className="relative flex items-end h-auto overflow-hidden bg-cover rounded-lg group"
                 style={{
-                  backgroundImage: `url('./imagen1.jpeg')`,
+                  backgroundImage: `url('https://res.cloudinary.com/dnyidkcvk/image/upload/v1724167400/ie1grefzdzmjo8zbnahm.jpg')`,
                   backgroundSize: "cover",
                   backgroundPosition: "center",
                   backgroundRepeat: "no-repeat",
@@ -90,7 +90,7 @@ const Body = () => {
               <div
                 className="relative flex items-end overflow-hidden bg-cover rounded-lg h-96 group"
                 style={{
-                  backgroundImage: `url('./imagen2.jpeg')`,
+                  backgroundImage: `url('https://res.cloudinary.com/dnyidkcvk/image/upload/v1724167400/zrben2qjceotd8yolapt.jpg')`,
                   backgroundSize: "cover",
                   backgroundPosition: "center",
                   backgroundRepeat: "no-repeat",
@@ -112,7 +112,7 @@ const Body = () => {
               <div
                 className="relative flex items-end overflow-hidden bg-cover rounded-lg h-96 group"
                 style={{
-                  backgroundImage: `url('./imagen3.jpeg')`,
+                  backgroundImage: `url('https://res.cloudinary.com/dnyidkcvk/image/upload/v1724167400/qcxaaxqrrjkfcpubfip5.jpg')`,
                   backgroundSize: "cover",
                   backgroundPosition: "center",
                   backgroundRepeat: "no-repeat",
@@ -135,7 +135,7 @@ const Body = () => {
               <div
                 className="relative flex items-end overflow-hidden bg-cover rounded-lg h-96 group"
                 style={{
-                  backgroundImage: `url('./imagen5.jpeg')`,
+                  backgroundImage: `url('https://res.cloudinary.com/dnyidkcvk/image/upload/v1724167398/yrjdk1rgyzb6ue3uj6vc.jpg')`,
                   backgroundSize: "cover",
                   backgroundPosition: "center",
                   backgroundRepeat: "no-repeat",

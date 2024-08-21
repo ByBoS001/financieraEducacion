@@ -13,7 +13,7 @@ const Header = () => {
             to="/"
             className="flex items-center space-x-3 rtl:space-x-reverse"
           >
-            <img src="logo.jpeg" className="h-8" alt="Logo" />
+            <img src="https://res.cloudinary.com/dnyidkcvk/image/upload/v1724167399/zobejn6t2qv0quxqasqo.jpg" className="h-8" alt="Logo" />
             <span className="self-center text-3xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-green-400 via-blue-500 to-purple-600">
               Finanzas360
             </span>

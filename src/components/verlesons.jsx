@@ -59,7 +59,7 @@ const LeccionCard = ({ id }) => {
           <div className="relative w-full h-48">
             <img
               className="object-cover w-full h-full rounded-md"
-              src={leccion.imageUrl || "./imagen2.jpeg"} // Imagen predeterminada si no hay una específica
+              src={leccion.imageUrl || "https://res.cloudinary.com/dnyidkcvk/image/upload/v1724167400/zrben2qjceotd8yolapt.jpg"} // Imagen predeterminada si no hay una específica
               alt={leccion.name}
             />
           </div>
